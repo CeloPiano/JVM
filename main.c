@@ -35,8 +35,6 @@ int main(void){
 
 
     // Lendo cp_info
-
-
     // Lendo acess_flags
     // Lendo this_class
     // Lendo super_class

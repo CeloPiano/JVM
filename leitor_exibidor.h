@@ -11,10 +11,20 @@
 
 #include <stdint.h>
 
+// sempre que tiver um INDEX é um indice do constant pool
+
 // definindo os tamanhos
+
+/// @brief Tipo u1 - 8bits
 typedef int8_t u1;
+
+/// @brief Tipo u2 - 16bits
 typedef int16_t u2;
+
+/// @brief Tipo u4 - 32bits
 typedef int32_t u4;
+
+/// @brief Tipo u8 - 64bits
 typedef int64_t u8;
 
 // Funções de leitura de 8, 16, 32 e 64 bits
@@ -32,28 +42,33 @@ static u4 u4Read();
 static u8 u8Read();
 
 
-/// @brief Struct que define classfile
-typedef struct Classfile
-{
-    u4 magic;
-    u2 minor_version;
-    u2 major_version;
-    u2 constant_pool_count;
-    cp_info *constant_pool;
-    u2 access_flags;
-    u2 this_class;
-    u2 super_class;
-    u2 interfaces_count;
-    u2 *interfaces; //aqui temos um array com os indices apontando para o constant poll
-    u2 fields_count;
-    // field_info *fields;
-    u2 methods_count;
-    // method_info *methods;
+/// @brief Struct Attribute info
+
+typedef struct attribute_info{
+    u2 attribute_name_index;
+    u4 attribute_lenght;
+    u1 info[attribute_lenght];
+}
+
+
+/// @brief Struct do Method
+
+typedef struct field_info{
+    u2 acess_flags; 
+    u2 name_index;          //aqui nesse caso pode ser <init>, <clinit> ou um nome valido para o metodo
+    u2 descriptor_index;            
     u2 attributes_count;
-    // attribute_info *attributes;
+    attribute_info attributes**;  //aqui acessamos o atribute info utilizando o count para acessar uma estrutura de atribute info
 
-} Classfile;
+/// @brief Struct do Field
 
+typedef struct field_info{
+    u2 acess_flags; 
+    u2 name_index;
+    u2 descriptor_index;
+    u2 attributes_count;
+    attribute_info attributes**;  //aqui acessamos o atribute info utilizando o count
+}
 
 /// @brief Struct cp_info
 typedef struct cp_info{
@@ -62,22 +77,22 @@ typedef struct cp_info{
     union constant_type{
         struct{
             u2 name_index;
-        } Class;
+        } Class_info;
 
         struct{
             u2 class_index;
             u2 name_and_type_index;
-        } Fieldref;
+        } Fieldref_info;
 
         struct{
             u2 class_index;
             u2 name_and_type_index;
-        } Methodref;
+        } Methodref_info;
         
         struct{
             u2 class_index;
             u2 name_and_type_index;
-        } InterfaceMethodref;
+        } InterfaceMethodref_info;
         
         struct{
             u2 name_index;
@@ -86,7 +101,7 @@ typedef struct cp_info{
         
         struct{
             u2 length;          //indica o número de bytes no array bytes (embaixo) pode ser 1, 2 ou 3 bytes
-            u1 *bytes;
+            u1 *bytes;          // quando formos alocar os bytes levamos em conta o numero de byts aqui é um array
             // u1 *bytes = (u1 *) malloc(lenght * sizeof(u1));     //aqui criamos um espaço de memória do tamanho do problema. (u1 tem 1 bit)
         } Utf8;
         
@@ -118,15 +133,25 @@ typedef struct cp_info{
 
 
 
-/// @brief Struct Field info
-
-typedef struct field_info{
-    u2 acess_flags; 
-    u2 name_index;
-    u2 descriptor_index;
+/// @brief Struct que define o ClassFile
+typedef struct Classfile
+{
+    u4 magic;
+    u2 minor_version;
+    u2 major_version;
+    u2 constant_pool_count;
+    cp_info *constant_pool;
+    u2 access_flags;
+    u2 this_class;
+    u2 super_class;
+    u2 interfaces_count;
+    u2 *interfaces; //aqui temos um array com os indices apontando para o constant poll
+    u2 fields_count;
+    // field_info *fields;
+    u2 methods_count;
+    // method_info *methods;
     u2 attributes_count;
-    // attribute_info attributes[attributes_count];
-}
+    // attribute_info *attributes;
 
-
+} Classfile;
 
