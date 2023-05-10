@@ -42,17 +42,53 @@ static u4 u4Read();
 static u8 u8Read();
 
 
+
+
+// Aqui temos os constant value attributes 
+
+/// @brief Exception Table Info
+typedef struct exception_table{
+    u2 start_pc;
+    u2 end_pc;
+    u2 handler_pc;
+    u2 catch_type;
+} exception_table;
+
+
+// se for abstract ou native nao tem codigo... se não, temos que ter apenas um atributo de código
+/// @brief Struct Code Attribute info
+typedef struct Code_atribute{
+    u2 max_stack;
+    u2 max_locals;
+    u2 code_lenght;
+    u1 *code;
+    u2 exception_table_length;
+    *exception_table; 
+    u2 attribute_count;
+    attribute_info *attributes
+    
+} ConstantValue_attribute;
+
+// isso é necessário?
+/// @brief Struct Constant Value Attribute info
+typedef struct ConstantValue_attribute{
+    u2 constantvalue_index;
+} ConstantValue_attribute;
+
+
 /// @brief Struct Attribute info
 
 typedef struct attribute_info{
     u2 attribute_name_index;
     u4 attribute_lenght;
-    u1 info[attribute_lenght];
+    // aqui temos as diferencas entre os atributos
+    union {
+        
+
+    } attribute_info_union;
 }
 
-
 /// @brief Struct do Method
-
 typedef struct field_info{
     u2 acess_flags; 
     u2 name_index;          //aqui nesse caso pode ser <init>, <clinit> ou um nome valido para o metodo
@@ -67,7 +103,7 @@ typedef struct field_info{
     u2 name_index;
     u2 descriptor_index;
     u2 attributes_count;
-    attribute_info attributes**;  //aqui acessamos o atribute info utilizando o count
+    attribute_info **attributes;  //aqui acessamos o atribute info utilizando o count
 }
 
 /// @brief Struct cp_info
@@ -102,7 +138,7 @@ typedef struct cp_info{
         struct{
             u2 length;          //indica o número de bytes no array bytes (embaixo) pode ser 1, 2 ou 3 bytes
             u1 *bytes;          // quando formos alocar os bytes levamos em conta o numero de byts aqui é um array
-            // u1 *bytes = (u1 *) malloc(lenght * sizeof(u1));     //aqui criamos um espaço de memória do tamanho do problema. (u1 tem 1 bit)
+            u1 *bytes = (u1 *) malloc(lenght * sizeof(u1));     //aqui criamos um espaço de memória do tamanho do problema. (u1 tem 1 bit)
         } Utf8;
         
         struct{
