@@ -22,15 +22,33 @@ int main(void){
 
     // Lendo minor_version
     cf->minor_version = u2Read(fd);
-    printaU4(cf->minor_version);
+    printf("%d \n",cf->minor_version);
 
     // Lendo major_version
     cf->major_version = u2Read(fd);
-    printaU4(cf->major_version);
+    printf("%d \n",cf->major_version);
 
     // Lendo constant_pool_count
     cf->constant_pool_count = u2Read(fd);
-    printaU4(cf->constant_pool_count);
+    printf("%d \n",cf->constant_pool_count);
+
+    
+    
+    // ------------------------------------------------ //
+    
+    // LENDO O CONSTANT POOL
+    
+    // criando espaco na memoria para todas as constantes -> constant_pool_count - 1
+    // ps: sempre criar uma copia do ponteiro para acessar as nossas constant pools
+    cp_info *cp_pointer = (cp_info *) malloc((cf->constant_pool_count - 1) * (sizeof(cp_info)));
+
+    //Iterar constant_pool_count vezes e ir lendo os bytes 
+
+    // printar a tag
+    u1 tag = u1Read(fd);
+    printf("%d \n",tag);
+    
+
 
 
 
