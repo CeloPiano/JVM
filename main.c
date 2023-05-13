@@ -16,6 +16,8 @@ int main(void){
     // Declarando o ponteiro do tipo ClassFile (struct) - Aqui temos que alocar um espaço na memoria do tamanho de classfile e fazer um casting
     Classfile *cf = (Classfile *) malloc(sizeof(Classfile));
 
+    // aqui podemos colocar tudo em uma funcao:
+
     // Lendo o magic
     cf->magic = u4Read(fd);
     printaU4(cf->magic);
@@ -33,23 +35,30 @@ int main(void){
     printf("%d \n",cf->constant_pool_count);
 
     
-    
     // ------------------------------------------------ //
     
     // LENDO O CONSTANT POOL
     
     // criando espaco na memoria para todas as constantes -> constant_pool_count - 1
     // ps: sempre criar uma copia do ponteiro para acessar as nossas constant pools
-    cp_info *cp_pointer = (cp_info *) malloc((cf->constant_pool_count - 1) * (sizeof(cp_info)));
+    
+    cf->constant_pool = (cp_info *) malloc((cf->constant_pool_count) * (sizeof(cp_info)));
 
     //Iterar constant_pool_count vezes e ir lendo os bytes 
+    for(int cp_index = 1; cp_index < cf->constant_pool_count; cp_index++){
+
+        // aqui temos que usar o indice para chamar a funcao de leitura
+        // pegamos o cf->constant_pool que é um ponteiro pegamos o valor [cp_index] dele e pegamos com & o endereço daquele valor
+        read_cp_info(fd, &cf->constant_pool[cp_index], &cp_index);
+
+    };
+
+
 
     // printar a tag
     u1 tag = u1Read(fd);
     printf("%d \n",tag);
     
-
-
 
 
     // Lendo cp_info
