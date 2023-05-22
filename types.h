@@ -102,6 +102,7 @@ typedef struct cp_info{
         } Fieldref_info;
 
         struct{
+            // representa um indice para um tipo class_info na constant pool
             u2 class_index;
             u2 name_and_type_index;
         } Methodref_info;
@@ -151,12 +152,13 @@ typedef struct cp_info{
 
 
 /// @brief Struct que define o ClassFile
-typedef struct Classfile
+typedef struct ClassFile
 {
     u4 magic;
     u2 minor_version;
     u2 major_version;
     u2 constant_pool_count;
+    // aqui temos um array/tabela do tipo cp_info que contem todas as constantes do constant pool
     cp_info *constant_pool;
     u2 access_flags;
     u2 this_class;
@@ -170,7 +172,7 @@ typedef struct Classfile
     u2 attributes_count;
     // attribute_info *attributes;
 
-} Classfile;
+} ClassFile;
 
 
 /// @brief Struct Enum para [POOL DE CONSTANTES TIPOS VÁLIDOS DE TAGS]

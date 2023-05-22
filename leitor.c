@@ -61,9 +61,10 @@ void read_cp_info(FILE *fd, cp_info *cp_info_pointer, int *cp_index){
     
     cp_info_pointer->tag = u1Read(fd);
 
+    // pegar a tag e com base no seu número, selecionar a estrutura.
     u1 tag = cp_info_pointer->tag;
 
-    // perguntar pro ladeira
+    // perguntar pro ladeira a outra alternativa para realizar isso.
     switch(tag){
         case(CONSTANT_Class_info):
             cp_info_pointer->constant_type_union.Class_info.name_index = u2Read(fd); 
