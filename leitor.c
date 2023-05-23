@@ -41,6 +41,8 @@ static u8 u8Read(FILE *fd){
 
 
 
+// ----------------- CONSTANT POOL -------------------------------- //
+
 // Lendo as tags
 // no Constant Pool temos os Cp_infos que dependem da tag para fazermos a alocacao
 
@@ -121,6 +123,7 @@ void read_cp_info(FILE *fd, cp_info *cp_info_pointer, int *cp_index){
             cp_info_pointer->constant_type_union.NameAndType.descriptor_index = u2Read(fd);
             break;
         
+        //erro aqui  
         case(CONSTANT_Utf8_info):
             //the number of bytes in the bytes array (not the length of the resulting string) 
             cp_info_pointer->constant_type_union.Utf8.length = u2Read(fd);
@@ -128,9 +131,14 @@ void read_cp_info(FILE *fd, cp_info *cp_info_pointer, int *cp_index){
             u2 lenght = cp_info_pointer->constant_type_union.Utf8.length;
 
             //bytes é um ponteiro para um array de lenght bytes -> alocando espaco e memoria para os bytes
-            u1 *bytes = (u1 *) malloc(lenght * sizeof(u1));
+            cp_info->constant_type_union.Utf8.bytes = (u1 *) malloc(lenght * sizeof(u1));
+            
+            // iterar dentro do do (0 até lenght - 1)
+            for(int i = 0; i < lenght; i++){
+                cp_info->constant_type_union.Utf8.bytes[i] = u1Read(fd);
+            }
             break;
-
+            
         default:
             break;
     }
