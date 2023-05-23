@@ -131,14 +131,14 @@ void read_cp_info(FILE *fd, cp_info *cp_info_pointer, int *cp_index){
             u2 lenght = cp_info_pointer->constant_type_union.Utf8.length;
 
             //bytes é um ponteiro para um array de lenght bytes -> alocando espaco e memoria para os bytes
-            cp_info->constant_type_union.Utf8.bytes = (u1 *) malloc(lenght * sizeof(u1));
+            cp_info_pointer->constant_type_union.Utf8.bytes = (u1 *) malloc(lenght * sizeof(u1));
             
             // iterar dentro do do (0 até lenght - 1)
             for(int i = 0; i < lenght; i++){
-                cp_info->constant_type_union.Utf8.bytes[i] = u1Read(fd);
+                cp_info_pointer->constant_type_union.Utf8.bytes[i] = u1Read(fd);
             }
             break;
-            
+
         default:
             break;
     }
