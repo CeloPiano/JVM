@@ -57,6 +57,7 @@ int main(void){
 
     };
 
+    // exibindo constant pool
 
     // // printar a tag
     // u1 tag = u1Read(fd);
@@ -70,10 +71,9 @@ int main(void){
     // //     printf("%d  \n", primeiro.constant_type_union.Utf8.bytes[i]);
     // // }
     
-    // printf("%d" ,cf->constant_pool[7].tag);
-    // printf("%s\n",Utf8_decoder(&cf->constant_pool[7]));
+    // printf("%d \n" ,cf->constant_pool[14].tag);
+    // printf("%s \n",Utf8_decoder(&cf->constant_pool[14]));
     
-
 
 
     exibir_cp_info(cf);

@@ -81,7 +81,7 @@ typedef int64_t u8;
 
 // };
 
-/// @brief Struct do Field
+
 // typedef struct field_info{
 //     u2 acess_flags; 
 //     u2 name_index;
@@ -123,7 +123,8 @@ typedef struct cp_info{
         
         struct{
             u2 length;          //indica o número de bytes no array bytes (embaixo) pode ser 1, 2 ou 3 bytes
-            u1 *bytes;          // quando formos alocar os bytes levamos em conta o numero de bytes aqui é um array
+            u1 *bytes;          //quando formos alocar os bytes levamos em conta o numero de bytes aqui é um array
+
             // u1 *bytes = (u1 *) malloc(lenght * sizeof(u1));     //aqui criamos um espaço de memória do tamanho do problema. (u1 tem 1 bit)
         } Utf8;
         

@@ -16,7 +16,7 @@
 #endif
 
 /// @brief Função que exibe os bytes em ascii que estão alocados no espaço de memória Bytes 
-/// @param cp_info_pointer Ponteiro que aponta para o cp_info em questão
+/// @param cp_info_pointer Ponteiro que aponta para o cp_info que representa um Utf8
 char* Utf8_decoder(cp_info * cp_info_pointer);
 
 /// @brief Função que exibe o cp info com base no ponteiro que aponta para os cp_infos alocados 
