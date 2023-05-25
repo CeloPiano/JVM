@@ -9,6 +9,10 @@
  */
 
 #include <stdint.h>
+#ifndef TYPESH
+#define TYPESH
+#endif
+
 
 // definindo os tamanhos
 /// @brief Tipo u1 - 8bits
@@ -119,7 +123,7 @@ typedef struct cp_info{
         
         struct{
             u2 length;          //indica o número de bytes no array bytes (embaixo) pode ser 1, 2 ou 3 bytes
-            u1 *bytes;          // quando formos alocar os bytes levamos em conta o numero de byts aqui é um array
+            u1 *bytes;          // quando formos alocar os bytes levamos em conta o numero de bytes aqui é um array
             // u1 *bytes = (u1 *) malloc(lenght * sizeof(u1));     //aqui criamos um espaço de memória do tamanho do problema. (u1 tem 1 bit)
         } Utf8;
         

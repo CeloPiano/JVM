@@ -8,8 +8,10 @@
  * @brief Arquivo com as funções utilizadas no leitor.
  * @details Declaração das funções de leitura.
  */
-
-#include <stdint.h>
+// #include "types.h"
+#ifndef LEITORH
+#define LEITORH
+#endif
 
 // sempre que tiver um INDEX é um indice do constant pool
 
@@ -17,16 +19,19 @@
 
 /// @brief lê o tipo de dado u1
 /// @param  fd Ponteiro para Byte do arquivo .Class lido
-static u1 u1Read(FILE *);
+static u1 u1Read(FILE * fd);
 
 /// @brief lê o tipo de dado u2
-static u2 u2Read(FILE *);
+/// @param  fd Ponteiro para Byte do arquivo .Class lido
+static u2 u2Read(FILE * fd);
 
 /// @brief lê o tipo de dado u4
-static u4 u4Read(FILE *);
+/// @param  fd Ponteiro para Byte do arquivo .Class lido
+static u4 u4Read(FILE * fd);
 
 /// @brief lê o tipo de dado u8
-static u8 u8Read(FILE *);
+/// @param  fd Ponteiro para Byte do arquivo .Class lido
+static u8 u8Read(FILE * fd);
 
 
 /// @brief Funçao que le o arquivo 

@@ -1,4 +1,7 @@
+// tirei o types dos headers e coloquei
+#include "types.h"
 #include "leitor.c"
+#include "exibidor.c"
 
 // ferramenta de debug
 #define printaU2(objeto) printf("%x \n", objeto);
@@ -55,11 +58,25 @@ int main(void){
     };
 
 
+    // // printar a tag
+    // u1 tag = u1Read(fd);
+    // printf("%d \n",tag);
 
-    // printar a tag
-    u1 tag = u1Read(fd);
-    printf("%d \n",tag);
+    // printar o primeiro tipo do pool  
+    // cp_info primeiro = cf->constant_pool[1];
+    // printf("%d \n", primeiro.tag);
+    // printf("%d \n", primeiro.constant_type_union.Utf8.length);
+    // // for(int i = 0; i < primeiro.constant_type_union.Utf8.length; i++){
+    // //     printf("%d  \n", primeiro.constant_type_union.Utf8.bytes[i]);
+    // // }
     
+    // printf("%d" ,cf->constant_pool[7].tag);
+    // printf("%s\n",Utf8_decoder(&cf->constant_pool[7]));
+    
+
+
+
+    exibir_cp_info(cf);
 
 
     // Lendo cp_info

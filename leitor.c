@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "types.h"
 #include "leitor.h"
 
 // Funçoes que iremos utilizar para a leitura dos arquivos
