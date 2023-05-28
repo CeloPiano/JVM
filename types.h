@@ -27,49 +27,87 @@ typedef int32_t u4;
 /// @brief Tipo u8 - 64bits
 typedef int64_t u8;
 
-// Aqui temos os constant value attributes para a UNION attribute_info_union
 
-// /// @brief Exception Table Info
-// typedef struct exception_table{
-//     u2 start_pc;
-//     u2 end_pc;
-//     u2 handler_pc;
-//     u2 catch_type;
-// } exception_table;
+// ---------------------------- STACK MAP FRAME UNION TYPES ----------------------------- //
+
+// typedef struct 
 
 
-// // se for abstract ou native nao tem codigo... se não, temos que ter apenas um atributo de código
-// /// @brief Struct Code Attribute info
-// typedef struct Code_atribute{
-//     u2 max_stack;
-//     u2 max_locals;
-//     u2 code_lenght;
-//     u1 *code;
-//     u2 exception_table_length;
-//     *exception_table; 
-//     u2 attribute_count;
-//     attribute_info *attributes
-    
-// } ConstantValue_attribute;
 
-// // isso é necessário?
-// /// @brief Struct Constant Value Attribute info
-// typedef struct ConstantValue_attribute{
-//     u2 constantvalue_index;
-// } ConstantValue_attribute;
+// ---------------------------- STACK MAP FRAME ----------------------------- //
 
-
-// /// @brief Struct Attribute info
-// typedef struct attribute_info{
-//     u2 attribute_name_index;
-//     u4 attribute_lenght;
-
-//     // aqui temos as diferencas entre os atributos
-//     union {
+typedef struct stack_map_frame {
+    u1 frame_type;
+    union stack_map_frame_union{
         
+        u1 frame_type;
+        // same_locals_1_stack_item_frame same_locals_1_stack_item_frame;
+        // same_locals_1_stack_item_frame_extended same_locals_1_stack_item_frame_extended;
+        // chop_frame chop_frame;
+        // same_frame_extended same_frame_extended;
+        // append_frame append_frame;
+        // full_frame full_frame;
 
-//     } attribute_info_union;
-// };
+    }stack_map_frame_union;
+
+
+} stack_map_frame;
+
+
+
+// ---------------------------- STACK MAP ATTRIBUTE ----------------------------- //
+
+typedef struct stackMapTable_attribute {
+    u2  attribute_name_index;
+    u4  attribute_length;
+    u2  number_of_entries;
+    stack_map_frame *entries;
+} stackMapTable_attribute;
+
+// ---------------------------- EXCEPTION TABLE STRUCTURE ----------------------------- //
+
+/// @brief Exception Table Info
+typedef struct exception_table{
+    u2 start_pc;
+    u2 end_pc;
+    u2 handler_pc;
+    u2 catch_type;
+} exception_table;
+
+// ---------------------------- CODE ATTRIBUTE ----------------------------- //
+
+// se for abstract ou native nao tem codigo... se não, temos que ter apenas um atributo de código
+/// @brief Struct Code Attribute info
+typedef struct code_attribute{
+    u2 max_stack;
+    u2 max_locals;
+    u2 code_lenght; //aqui temos a quantidade de bytes no code array
+    u1 *code; //aqui temos um ponteiro para o code array que apresenta os opcodes 
+    u2 exception_table_length;
+    exception_table *exception_table;  
+    u2 attribute_count;
+    struct attribute_info *attributes; //como está aqui embaixo, temos que referenciar como struct
+} code_attribute;
+
+// ---------------------------- ATTRIBUTE INFO ----------------------------- //
+
+/// @brief Struct que define o Attribute info
+typedef struct attribute_info{
+    u2 attribute_name_index;
+    u4 attribute_lenght;
+
+    // aqui temos as diferencas entre os atributos
+    union attribute_info_union{
+        u2 constantvalue_index; //aqui não precisamos de uma struct completa visto que temos apenas campo 
+        code_attribute code_attribute;
+
+        
+    } attribute_info_union;
+    
+} attribute_info;
+
+
+// ---------------------------- METHODS ----------------------------- //
 
 // /// @brief Struct do Method
 // typedef struct method_info{
@@ -81,6 +119,7 @@ typedef int64_t u8;
 
 // };
 
+// ---------------------------- FIELDS ----------------------------- //
 
 // typedef struct field_info{
 //     u2 acess_flags; 
@@ -90,7 +129,7 @@ typedef int64_t u8;
 //     attribute_info **attributes;  //aqui acessamos o atribute info utilizando o count
 // };
 
-/// @brief Struct cp_info
+/// @brief Struct que define o cp_info
 typedef struct cp_info{
     u1 tag;
 
@@ -175,7 +214,7 @@ typedef struct ClassFile
     u2 methods_count;
     // method_info *methods;
     u2 attributes_count;
-    // attribute_info *attributes;
+    attribute_info *attributes;
 
 } ClassFile;
 
