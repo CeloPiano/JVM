@@ -27,42 +27,67 @@ typedef int32_t u4;
 /// @brief Tipo u8 - 64bits
 typedef int64_t u8;
 
-
-// ---------------------------- STACK MAP FRAME UNION TYPES ----------------------------- //
-
-// typedef struct 
+// referenciando o attribute
+struct attribute_info;
 
 
 
-// ---------------------------- STACK MAP FRAME ----------------------------- //
+// ---------------------------- LOCAL VARIABLE TABLE STRUCTURE ----------------------------- //
 
-typedef struct stack_map_frame {
-    u1 frame_type;
-    union stack_map_frame_union{
-        
-        u1 frame_type;
-        // same_locals_1_stack_item_frame same_locals_1_stack_item_frame;
-        // same_locals_1_stack_item_frame_extended same_locals_1_stack_item_frame_extended;
-        // chop_frame chop_frame;
-        // same_frame_extended same_frame_extended;
-        // append_frame append_frame;
-        // full_frame full_frame;
+typedef struct local_variable_table{   
+    u2 start_pc;
+    u2 length;
+    u2 name_index;
+    u2 descriptor_index;
+    u2 index;
+} local_variable_table;
 
-    }stack_map_frame_union;
+// ---------------------------- LOCAL VARIABLE TABLE ATTRIBUTE ----------------------------- //
 
-
-} stack_map_frame;
+typedef struct localVariableTable_attribute {
+    u2 local_variable_table_length;
+    local_variable_table local_variable_table;
+} localVariableTable_attribute;
 
 
+// ---------------------------- LINE NUMBER TABLE STRUCTURE ----------------------------- //
 
-// ---------------------------- STACK MAP ATTRIBUTE ----------------------------- //
+typedef struct line_number_table{
+    u2 start_pc;
+    u2 line_number;
+} line_number_table;
 
-typedef struct stackMapTable_attribute {
-    u2  attribute_name_index;
-    u4  attribute_length;
-    u2  number_of_entries;
-    stack_map_frame *entries;
-} stackMapTable_attribute;
+// ---------------------------- LINE NUMBER TABLE ATTRIBUTE ----------------------------- //
+
+typedef struct lineNumberTable_attribute{
+    u2 line_number_table_length;
+    line_number_table *line_number_table;
+} lineNumberTable_attribute;
+
+
+// ---------------------------- INNER CLASS STRUCTURE ----------------------------- //
+
+typedef struct inner_classes{
+    u2 inner_class_info_index;
+    u2 outer_class_info_index;
+    u2 inner_name_index;
+    u2 inner_class_access_flags;
+}inner_classes;
+
+// ---------------------------- INNER CLASS ATTRIBUTE ----------------------------- //
+
+typedef struct innerClasses_attribute {
+    u2 number_of_classes;
+    inner_classes *inner_classes;
+} innerClasses_attribute;
+
+// ---------------------------- EXCEPTION ATTRIBUTE ----------------------------- //
+
+typedef struct exceptions_attribute {
+    u2 number_of_exceptions;
+    // cada valor é um constant pool index -> constant class info
+    u2 *exception_index_table;
+}exceptions_attribute;
 
 // ---------------------------- EXCEPTION TABLE STRUCTURE ----------------------------- //
 
@@ -73,6 +98,7 @@ typedef struct exception_table{
     u2 handler_pc;
     u2 catch_type;
 } exception_table;
+
 
 // ---------------------------- CODE ATTRIBUTE ----------------------------- //
 
@@ -100,7 +126,7 @@ typedef struct attribute_info{
     union attribute_info_union{
         u2 constantvalue_index; //aqui não precisamos de uma struct completa visto que temos apenas campo 
         code_attribute code_attribute;
-
+        
         
     } attribute_info_union;
     
@@ -109,25 +135,26 @@ typedef struct attribute_info{
 
 // ---------------------------- METHODS ----------------------------- //
 
-// /// @brief Struct do Method
-// typedef struct method_info{
-//     u2 acess_flags; 
-//     u2 name_index;          //aqui nesse caso pode ser <init>, <clinit> ou um nome valido para o metodo
-//     u2 descriptor_index;            
-//     u2 attributes_count;
-//     attribute_info **attributes;  //aqui acessamos o atribute info utilizando o count para acessar uma estrutura de atribute info
+/// @brief Struct que define o Method Info
+typedef struct method_info{
+    u2 acess_flags; 
+    u2 name_index;          //aqui nesse caso pode ser <init>, <clinit> ou um nome valido para o metodo
+    u2 descriptor_index;            
+    u2 attributes_count;
+    attribute_info *attributes;  //aqui acessamos o atribute info utilizando o count para acessar uma estrutura de atribute info
 
-// };
+}method_info;
 
 // ---------------------------- FIELDS ----------------------------- //
 
-// typedef struct field_info{
-//     u2 acess_flags; 
-//     u2 name_index;
-//     u2 descriptor_index;
-//     u2 attributes_count;
-//     attribute_info **attributes;  //aqui acessamos o atribute info utilizando o count
-// };
+/// @brief Struct que define o Field Info
+typedef struct field_info{
+    u2 acess_flags; 
+    u2 name_index;
+    u2 descriptor_index;
+    u2 attributes_count;
+    attribute_info *attributes;  //aqui acessamos o atribute info utilizando o count
+}field_info;
 
 /// @brief Struct que define o cp_info
 typedef struct cp_info{
