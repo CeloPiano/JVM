@@ -9,6 +9,9 @@
 // file reader
 // FILE* fopen(const char* filename, const char* mode); 
 
+
+// ----------------- LEITOR DE BYTES -------------------------------- //
+
 // funcoes que retornam u bytes.
 // read u1 (8bits) getc -> return e fd++
 static u1 u1Read(FILE *fd){
@@ -58,94 +61,130 @@ teste.constant_type.testando = 10;
 
 // passar o endereco do ponteiro
 
-void read_cp_info(FILE *fd, cp_info *cp_info_pointer, int *cp_index){
+// -------------------------- read cp info ----------------------------------- //
+void read_cp_info(FILE *fd, ClassFile *cf){
     
-    cp_info_pointer->tag = u1Read(fd);
+    for(int cp_index = 1; cp_index < cf->constant_pool_count; cp_index++){
 
-    // pegar a tag e com base no seu número, selecionar a estrutura.
-    u1 tag = cp_info_pointer->tag;
+        cp_info *cp_info = &cf->constant_pool[cp_index];
 
-    // perguntar pro ladeira a outra alternativa para realizar isso.
-    switch(tag){
-        case(CONSTANT_Class_info):
-            cp_info_pointer->constant_type_union.Class_info.name_index = u2Read(fd); 
-            break;
+        cp_info->tag = u1Read(fd);
 
-        case(CONSTANT_Fieldref_info):
-            cp_info_pointer->constant_type_union.Fieldref_info.class_index = u2Read(fd);
-            cp_info_pointer->constant_type_union.Fieldref_info.name_and_type_index = u2Read(fd);
-            break;
+        // pegar a tag e com base no seu número, selecionar a estrutura.
+        u1 tag = cp_info->tag;
+
+        // perguntar pro ladeira a outra alternativa para realizar isso.
+        switch(tag){
+            case(CONSTANT_Class_info):
+                cp_info->constant_type_union.Class_info.name_index = u2Read(fd); 
+                break;
+
+            case(CONSTANT_Fieldref_info):
+                cp_info->constant_type_union.Fieldref_info.class_index = u2Read(fd);
+                cp_info->constant_type_union.Fieldref_info.name_and_type_index = u2Read(fd);
+                break;
+                
+            case(CONSTANT_Methodref_info):
+                cp_info->constant_type_union.Methodref_info.class_index = u2Read(fd);
+                cp_info->constant_type_union.Methodref_info.name_and_type_index = u2Read(fd);
+                break;
+                
+            case(CONSTANT_InterfaceMethodref_info):
+                cp_info->constant_type_union.InterfaceMethodref_info.class_index = u2Read(fd);
+                cp_info->constant_type_union.InterfaceMethodref_info.name_and_type_index = u2Read(fd);
+                break;
+                
+            case(CONSTANT_String_info):
+                cp_info->constant_type_union.String.string_index = u2Read(fd);
+                break;
+
+            case(CONSTANT_Integer_info):
+                // IEEE 754 floating-point single format  
+                cp_info->constant_type_union.Float.bytes = u4Read(fd);
+                break;
             
-        case(CONSTANT_Methodref_info):
-            cp_info_pointer->constant_type_union.Methodref_info.class_index = u2Read(fd);
-            cp_info_pointer->constant_type_union.Methodref_info.name_and_type_index = u2Read(fd);
-            break;
+            case(CONSTANT_Float_info):
+                // IEEE 754 floating-point single format 
+                // na hora de representar tem que utilizar -> result of the mathematical expression s · m · 2e-150. 
+                cp_info->constant_type_union.Float.bytes = u4Read(fd);
+                break;
+
+            case(CONSTANT_Long_info):
+                // pular o indice? SIM
+                cp_index++;
+                // também tem toda uma técnica na hora de representar
+                cp_info->constant_type_union.Long.high_bytes = u4Read(fd);
+                cp_info->constant_type_union.Long.low_bytes = u4Read(fd);
+                break;
+
+            case(CONSTANT_Double_info):
+                // pular o indice? SIM
+                cp_index++;
+                // também tem toda uma técnica na hora de representar
+                cp_info->constant_type_union.Double.high_bytes = u4Read(fd);
+                cp_info->constant_type_union.Double.low_bytes = u4Read(fd);
+                break;
             
-        case(CONSTANT_InterfaceMethodref_info):
-            cp_info_pointer->constant_type_union.InterfaceMethodref_info.class_index = u2Read(fd);
-            cp_info_pointer->constant_type_union.InterfaceMethodref_info.name_and_type_index = u2Read(fd);
-            break;
+            case(CONSTANT_NameAndType_info):
+                cp_info->constant_type_union.NameAndType.name_index = u2Read(fd);
+                cp_info->constant_type_union.NameAndType.descriptor_index = u2Read(fd);
+                break;
             
-        case(CONSTANT_String_info):
-            cp_info_pointer->constant_type_union.String.string_index = u2Read(fd);
-            break;
+            //erro aqui  
+            case(CONSTANT_Utf8_info):
+                //the number of bytes in the bytes array (not the length of the resulting string) 
+                cp_info->constant_type_union.Utf8.length = u2Read(fd);
 
-        case(CONSTANT_Integer_info):
-            // IEEE 754 floating-point single format  
-            cp_info_pointer->constant_type_union.Float.bytes = u4Read(fd);
-            break;
-        
-        case(CONSTANT_Float_info):
-            // IEEE 754 floating-point single format 
-            // na hora de representar tem que utilizar -> result of the mathematical expression s · m · 2e-150. 
-            cp_info_pointer->constant_type_union.Float.bytes = u4Read(fd);
-            break;
+                u2 lenght = cp_info->constant_type_union.Utf8.length;
 
-        case(CONSTANT_Long_info):
-            // pular o indice? SIM
-            *cp_index++;
-            // também tem toda uma técnica na hora de representar
-            cp_info_pointer->constant_type_union.Long.high_bytes = u4Read(fd);
-            cp_info_pointer->constant_type_union.Long.low_bytes = u4Read(fd);
-            break;
+                //bytes é um ponteiro para um array de lenght bytes -> alocando espaco e memoria para os bytes
+                cp_info->constant_type_union.Utf8.bytes = (u1 *) malloc(lenght * sizeof(u1));
+                
+                // iterar dentro do do (0 até lenght - 1)
+                for(int i = 0; i < lenght; i++){
+                    cp_info->constant_type_union.Utf8.bytes[i] = u1Read(fd);
+                }
+                break;
 
-        case(CONSTANT_Double_info):
-            // pular o indice? SIM
-            *cp_index++;
-            // também tem toda uma técnica na hora de representar
-            cp_info_pointer->constant_type_union.Double.high_bytes = u4Read(fd);
-            cp_info_pointer->constant_type_union.Double.low_bytes = u4Read(fd);
-            break;
-        
-        case(CONSTANT_NameAndType_info):
-            cp_info_pointer->constant_type_union.NameAndType.name_index = u2Read(fd);
-            cp_info_pointer->constant_type_union.NameAndType.descriptor_index = u2Read(fd);
-            break;
-        
-        //erro aqui  
-        case(CONSTANT_Utf8_info):
-            //the number of bytes in the bytes array (not the length of the resulting string) 
-            cp_info_pointer->constant_type_union.Utf8.length = u2Read(fd);
+            default:
+                break;
+        }
+    };
+};   
 
-            u2 lenght = cp_info_pointer->constant_type_union.Utf8.length;
 
-            //bytes é um ponteiro para um array de lenght bytes -> alocando espaco e memoria para os bytes
-            cp_info_pointer->constant_type_union.Utf8.bytes = (u1 *) malloc(lenght * sizeof(u1));
-            
-            // iterar dentro do do (0 até lenght - 1)
-            for(int i = 0; i < lenght; i++){
-                cp_info_pointer->constant_type_union.Utf8.bytes[i] = u1Read(fd);
-            }
-            break;
+// -------------------------- ATTRIBUTE INFO ----------------------------------- //
 
-        default:
-            break;
-    }
+
+
+
+// -------------------------- .CLASS READING ----------------------------------- //
+
+void class_reader(FILE *fd, ClassFile *cf){
+
+    // Lendo o magic
+    cf->magic = u4Read(fd);
+    printf("Magic: %d \n",cf->minor_version);
+    
+    // Lendo minor_version
+    cf->minor_version = u2Read(fd);
+    printf("Minor_version: %d \n",cf->minor_version);
+
+    // Lendo major_version
+    cf->major_version = u2Read(fd);
+    printf("Major_version: %d \n",cf->major_version);
+
+    // Lendo constant_pool_count
+    cf->constant_pool_count = u2Read(fd);
+    printf("Constant pool count: %d \n \n",cf->constant_pool_count);
+
+    // alocando ESPAÇO para o cp_info
+    cf->constant_pool = (cp_info *) malloc(cf->constant_pool_count * sizeof(cp_info));
+
+    // lendo o cp
+    read_cp_info(fd, cf);
+
 };
-
-
-
-
 
 
 
