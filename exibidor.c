@@ -46,7 +46,7 @@ void exibir_cp_info(ClassFile *classFile){
     printf("Constant Pool \n \n");
 
     // iterar nos constant pools e ir printando com base em cada um de (1 até cp_count - 1) 
-    for(int i = 1; i < 5; i++){
+    for(int i = 1; i < 10; i++){
 
         // constantPoolItem é um ponteiro que aponta para a cp em questão
         // aqui pegamos no &constantPool[i] o endereço do cp_info localizado nessa posição
@@ -56,7 +56,6 @@ void exibir_cp_info(ClassFile *classFile){
         printf("[0%d] - ", i);
         // primeiro byte é o tag 
         printf("Tag: %d \n", constantPool[i].tag);
-
         // agora temos o restante que depende do tag, aplicar um SWITCH
         // para cada estrutura, agora temos que realizar os devidos prints
         switch(constantPool[i].tag){
@@ -96,6 +95,7 @@ void exibir_cp_info(ClassFile *classFile){
                 // meio confuso, tem outras formas de implementar
                 // aqui o class_index aponta para uma classe no constant poll e depois essa class_info aponta para um utf8.
                 
+                printf("\n debug indice = %d \n\n", methodref_class_index);
                 // printando o class name
                 printf("Class name: cp_info #%d <%s>\n", methodref_class_index, Utf8_decoder(&constantPool[constantPool[methodref_class_index].constant_type_union.Class_info.name_index]));
                 

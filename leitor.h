@@ -18,21 +18,32 @@
 // Funções de leitura de 8, 16, 32 e 64 bits
 
 /// @brief lê o tipo de dado u1
-/// @param  fd Ponteiro para Byte do arquivo .Class lido
+/// @param fd Ponteiro para Byte do arquivo .Class lido
 static u1 u1Read(FILE * fd);
 
 /// @brief lê o tipo de dado u2
-/// @param  fd Ponteiro para Byte do arquivo .Class lido
+/// @param fd Ponteiro para Byte do arquivo .Class lido
 static u2 u2Read(FILE * fd);
 
 /// @brief lê o tipo de dado u4
-/// @param  fd Ponteiro para Byte do arquivo .Class lido
+/// @param fd Ponteiro para Byte do arquivo .Class lido
 static u4 u4Read(FILE * fd);
 
 /// @brief lê o tipo de dado u8
-/// @param  fd Ponteiro para Byte do arquivo .Class lido
+/// @param fd Ponteiro para Byte do arquivo .Class lido
 static u8 u8Read(FILE * fd);
 
+/// @brief Funçao que le o arquivo 
+/// @param fd Ponteiro para Byte do arquivo .Class lido
+/// @param attr_info Ponteiro para a lista de attributos
+/// @param attr_count Quantidade de attributos
+/// @param cp Ponteiro para o Constant Pool
+void read_attribute(FILE *,attribute_info *, u2 ,cp_info *);
+
+/// @brief Funçao que le o arquivo 
+/// @param fd Ponteiro para Byte do arquivo .Class lido
+/// @param cf Ponteiro para o Class File
+void read_fields(FILE *,ClassFile *);
 
 /// @brief Funçao que le o arquivo 
 /// @param fd Ponteiro para Byte do arquivo .Class lido

@@ -115,7 +115,7 @@ typedef struct code_attribute{
     struct attribute_info *attributes; //como está aqui embaixo, temos que referenciar como struct
 } code_attribute;
 
-// ---------------------------- ATTRIBUTE INFO ----------------------------- //
+// ---------------------------- ATTRIBUTE ----------------------------- //
 
 /// @brief Struct que define o Attribute info
 typedef struct attribute_info{
@@ -126,8 +126,11 @@ typedef struct attribute_info{
     union attribute_info_union{
         u2 constantvalue_index; //aqui não precisamos de uma struct completa visto que temos apenas campo 
         code_attribute code_attribute;
-        
-        
+        exceptions_attribute exceptions_attribute;
+        innerClasses_attribute innerClasses_attribute;
+        lineNumberTable_attribute lineNumberTable_attribute;
+        localVariableTable_attribute localVariableTable_attribute;
+
     } attribute_info_union;
     
 } attribute_info;
@@ -237,9 +240,9 @@ typedef struct ClassFile
     u2 interfaces_count;
     u2 *interfaces; //aqui temos um array com os indices apontando para o constant poll
     u2 fields_count;
-    // field_info *fields;
+    field_info *fields;
     u2 methods_count;
-    // method_info *methods;
+    method_info *methods;
     u2 attributes_count;
     attribute_info *attributes;
 

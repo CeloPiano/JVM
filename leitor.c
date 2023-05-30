@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "leitor.h"
+#include "exibidor.h"
 
 // Funçoes que iremos utilizar para a leitura dos arquivos
 
@@ -41,6 +42,64 @@ static u8 u8Read(FILE *fd){
     return toReturn;
 };
 
+// ----------------- ATTRIBUTE -------------------------------- //
+// aqui já passamos o attribute info em questão
+void read_attribute(FILE *fd, attribute_info *attr_info, u2 attr_count, cp_info *cp){
+
+    for(int i = 0; i < 2; i++){
+
+        attr_info->attribute_name_index = u2Read(fd);
+        attr_info->attribute_lenght = u2Read(fd);
+
+        printf("%s", Utf8_decoder(&cp[attr_info->attribute_name_index]));
+
+
+        // agora vamos trabalhar com a union
+        // switch (attr_info->attribute_lenght)
+        // {
+        // case /* constant-expression */:
+        //     /* code */
+        //     break;
+        
+        // default:
+        //     break;
+        // }
+
+    }; 
+};
+
+
+// ----------------- METHODS -------------------------------- //
+
+
+// ----------------- FIELDS -------------------------------- //
+// represent all fields, both class variables and instance variables
+
+void read_fields(FILE *fd, ClassFile *cf){
+    // alocando ESPAÇO para o cp_info
+    cf->fields = (field_info *) malloc(cf->fields_count * sizeof(field_info));
+    
+    // alocar em memória os fields
+    for(int i = 0; i < cf->fields_count; i++){
+        // lendo flags
+        cf->fields[i].acess_flags = u2Read(fd);
+        
+        // lendo name_index
+        cf->fields[i].name_index = u2Read(fd);
+        
+        // lendo descriptor_index
+        cf->fields[i].descriptor_index = u2Read(fd);
+        
+        // lendo attributes_count
+        cf->fields[i].attributes_count = u2Read(fd);
+
+        // alocando o espaço para os attributes do field
+        cf->fields[i].attributes = (attribute_info *) malloc(cf->fields[i].attributes_count * sizeof(attribute_info));
+
+        // lendo field attributes
+        read_attribute(fd, cf->fields[i].attributes, cf->fields[i].attributes_count, cf->constant_pool);
+    };
+};
 
 
 // ----------------- CONSTANT POOL -------------------------------- //
@@ -64,7 +123,11 @@ teste.constant_type.testando = 10;
 // -------------------------- read cp info ----------------------------------- //
 void read_cp_info(FILE *fd, ClassFile *cf){
     
+    // alocando ESPAÇO para o cp_info na memória e endereçando no ponteiro constant_pool.
+    cf->constant_pool = (cp_info *) malloc(cf->constant_pool_count * sizeof(cp_info));
+    
     for(int cp_index = 1; cp_index < cf->constant_pool_count; cp_index++){
+
 
         cp_info *cp_info = &cf->constant_pool[cp_index];
 
@@ -153,10 +216,6 @@ void read_cp_info(FILE *fd, ClassFile *cf){
 };   
 
 
-// -------------------------- ATTRIBUTE INFO ----------------------------------- //
-
-
-
 
 // -------------------------- .CLASS READING ----------------------------------- //
 
@@ -178,11 +237,38 @@ void class_reader(FILE *fd, ClassFile *cf){
     cf->constant_pool_count = u2Read(fd);
     printf("Constant pool count: %d \n \n",cf->constant_pool_count);
 
-    // alocando ESPAÇO para o cp_info
-    cf->constant_pool = (cp_info *) malloc(cf->constant_pool_count * sizeof(cp_info));
-
     // lendo o cp
     read_cp_info(fd, cf);
+
+    // lendo acess flags
+    cf->access_flags = u2Read(fd);
+    
+    // lendo this_class
+    cf->this_class = u2Read(fd);
+    
+    // lendo super_class
+    cf->super_class = u2Read(fd);
+
+    // lendo interfaces count 
+    cf->interfaces_count = u2Read(fd);    
+
+    // alocando em memória o interfaces count
+    cf->interfaces = (u2*) malloc(cf->interfaces_count * sizeof(u2));
+
+    // preenchendo o vetor de interfaces
+    for (int i = 0; i < cf->interfaces_count; i++){
+        cf->interfaces[i] = u2Read(fd);
+    };
+
+    // lendo fields count 
+    cf->fields_count = u2Read(fd);
+
+    // lendo os FIELDS
+    read_fields(fd, cf);
+
+
+
+
 
 };
 
