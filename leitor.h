@@ -36,7 +36,11 @@ static u8 u8Read(FILE * fd);
 
 /// @brief Funçao que le o arquivo 
 /// @param fd Ponteiro para Byte do arquivo .Class lido
-/// @param cp_info_pointer Ponteiro para uma constant do constant pool
-/// @param cp_index Ponteiro que contem o endereço do indice utilizado na iteraçao da constante 
-void read_cp_info(FILE *, cp_info *, int *);
+/// @param cf Ponteiro para o Class File
+void read_cp_info(FILE *,ClassFile *);
+
+/// @brief Funçao que le o arquivo 
+/// @param fd Ponteiro para Byte do arquivo .Class lido
+/// @param cf Ponteiro para o Class File
+void class_reader(FILE *,ClassFile *);
 
