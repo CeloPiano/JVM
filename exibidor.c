@@ -46,7 +46,8 @@ void exibir_cp_info(ClassFile *classFile){
     printf("Constant Pool \n \n");
 
     // iterar nos constant pools e ir printando com base em cada um de (1 até cp_count - 1) 
-    for(int i = 1; i < 10; i++){
+    for(int i = 1; i < cp_info_count; i++){
+    // printf("\n debug indice = %d \n\n", methodref_class_index);
 
         // constantPoolItem é um ponteiro que aponta para a cp em questão
         // aqui pegamos no &constantPool[i] o endereço do cp_info localizado nessa posição
@@ -61,14 +62,16 @@ void exibir_cp_info(ClassFile *classFile){
         switch(constantPool[i].tag){
             
             case(CONSTANT_Class_info):
-                // colocar o cp_info aqui?
-                u2 class_name_index = constantPool[i].constant_type_union.Class_info.name_index;
-                // aqui pegamos o index para acessar a constante utf_8 para a nossa função
-                printf("Class name: cp_info #%d <%s>\n", class_name_index, Utf8_decoder(&constantPool[class_name_index]));
+                { 
+                    u2 class_name_index = constantPool[i].constant_type_union.Class_info.name_index;
+                    // aqui pegamos o index para acessar a constante utf_8 para a nossa função
+                    printf("Class name: cp_info #%d <%s>\n", class_name_index, Utf8_decoder(&constantPool[class_name_index]));
+                }
                 break;
 
             case(CONSTANT_Fieldref_info):
-                
+                {
+                    
                 u1 fieldref_class_index = constantPool[i].constant_type_union.Fieldref_info.class_index;
                 u1 fieldref_name_and_type_index = constantPool[i].constant_type_union.Fieldref_info.name_and_type_index;
                 
@@ -84,10 +87,12 @@ void exibir_cp_info(ClassFile *classFile){
 
                 // descriptor
                 printf("%s>\n \n", Utf8_decoder(&constantPool[constantPool[fieldref_name_and_type_index].constant_type_union.NameAndType.descriptor_index]));
+                }
                 
                 break;
                 
             case(CONSTANT_Methodref_info):
+                {
 
                 u1 methodref_class_index = constantPool[i].constant_type_union.Methodref_info.class_index;
                 u1 methodref_name_and_type_index = constantPool[i].constant_type_union.Methodref_info.name_and_type_index;
@@ -95,7 +100,6 @@ void exibir_cp_info(ClassFile *classFile){
                 // meio confuso, tem outras formas de implementar
                 // aqui o class_index aponta para uma classe no constant poll e depois essa class_info aponta para um utf8.
                 
-                printf("\n debug indice = %d \n\n", methodref_class_index);
                 // printando o class name
                 printf("Class name: cp_info #%d <%s>\n", methodref_class_index, Utf8_decoder(&constantPool[constantPool[methodref_class_index].constant_type_union.Class_info.name_index]));
                 
@@ -107,20 +111,24 @@ void exibir_cp_info(ClassFile *classFile){
                 // descriptor
                 printf("%s> \n \n", Utf8_decoder(&constantPool[constantPool[methodref_name_and_type_index].constant_type_union.NameAndType.descriptor_index]));
                 
+                }
                 break;
                 
 
-            // case(CONSTANT_InterfaceMethodref_info):
+            // case(CONSTANT_InterfaceMethodref_info): {
             //     cp_info_pointer->constant_type_union.InterfaceMethodref_info.class_index = u2Read(fd);
             //     cp_info_pointer->constant_type_union.InterfaceMethodref_info.name_and_type_index = u2Read(fd);
+            //     }
             //     break;
                 
             case(CONSTANT_String_info):
-                
+            {
+
                 u1 string_info_index = constantPool[i].constant_type_union.String.string_index;
 
                 printf("String: cp_info #%d <%s> \n \n", string_info_index ,Utf8_decoder(&constantPool[string_info_index]));
 
+            }
                 break;
 
             // case(CONSTANT_Integer_info):
@@ -129,8 +137,10 @@ void exibir_cp_info(ClassFile *classFile){
             //     break;
             
             case(CONSTANT_Float_info):
-                
+                {
+
             
+                }   
                 break;
 
             // case(CONSTANT_Long_info):
@@ -155,13 +165,15 @@ void exibir_cp_info(ClassFile *classFile){
             //     break;
             
             case(CONSTANT_Utf8_info):
-                
+            {   
                 // lenght of byte array?
                 printf("lenght of Byte array: %d", constantPool[i].constant_type_union.Utf8.length);
                 // lenght of string?
                 printf("lenght of string: %d", constantPool[i].constant_type_union.Utf8.length);
                 // String
                 printf("String: %s \n \n", Utf8_decoder(&constantPool[i]));
+            }   
+                break;
 
             default:
                 break;
