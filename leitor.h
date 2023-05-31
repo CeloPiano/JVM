@@ -8,10 +8,9 @@
  * @brief Arquivo com as funções utilizadas no leitor.
  * @details Declaração das funções de leitura.
  */
-// #include "types.h"
+#include "types.h"
 #ifndef LEITORH
 #define LEITORH
-#endif
 
 // sempre que tiver um INDEX é um indice do constant pool
 
@@ -55,3 +54,5 @@ void read_cp_info(FILE *,ClassFile *);
 /// @param cf Ponteiro para o Class File
 void class_reader(FILE *,ClassFile *);
 
+
+#endif

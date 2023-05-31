@@ -11,7 +11,6 @@
 #include <stdint.h>
 #ifndef TYPESH
 #define TYPESH
-#endif
 
 
 // definindo os tamanhos
@@ -119,8 +118,8 @@ typedef struct code_attribute{
 
 /// @brief Struct que define o Attribute info
 typedef struct attribute_info{
-    u2 attribute_name_index;
-    u4 attribute_lenght;
+    u2 attribute_name_index; //nome em utf8
+    u4 attribute_lenght; //
 
     // aqui temos as diferencas entre os atributos
     union attribute_info_union{
@@ -267,3 +266,5 @@ enum tag_to_class
     CONSTANT_InvokeDynamic_info = 18,
     CONSTANT_Utf8_info = 1,
 };
+
+#endif
