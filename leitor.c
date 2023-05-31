@@ -209,7 +209,21 @@ void read_cp_info(FILE *fd, ClassFile *cf){
                 }
                 break;
 
+            case(CONSTANT_MethodHandle_info):
+                u1Read(fd);
+                u2Read(fd);
+                break;
+
+            case(CONSTANT_MethodType_info):
+                u2Read(fd);
+                break;
+
+            case(CONSTANT_InvokeDynamic_info):
+                u4Read(fd);
+                break;
+
             default:
+                // executa tal coisa
                 break;
         }
     };
@@ -240,31 +254,31 @@ void class_reader(FILE *fd, ClassFile *cf){
     // lendo o cp
     read_cp_info(fd, cf);
 
-    // lendo acess flags
-    cf->access_flags = u2Read(fd);
+    // // lendo acess flags
+    // cf->access_flags = u2Read(fd);
     
-    // lendo this_class
-    cf->this_class = u2Read(fd);
+    // // lendo this_class
+    // cf->this_class = u2Read(fd);
     
-    // lendo super_class
-    cf->super_class = u2Read(fd);
+    // // lendo super_class
+    // cf->super_class = u2Read(fd);
 
-    // lendo interfaces count 
-    cf->interfaces_count = u2Read(fd);    
+    // // lendo interfaces count 
+    // cf->interfaces_count = u2Read(fd);    
 
-    // alocando em memória o interfaces count
-    cf->interfaces = (u2*) malloc(cf->interfaces_count * sizeof(u2));
+    // // alocando em memória o interfaces count
+    // cf->interfaces = (u2*) malloc(cf->interfaces_count * sizeof(u2));
 
-    // preenchendo o vetor de interfaces
-    for (int i = 0; i < cf->interfaces_count; i++){
-        cf->interfaces[i] = u2Read(fd);
-    };
+    // // preenchendo o vetor de interfaces
+    // for (int i = 0; i < cf->interfaces_count; i++){
+    //     cf->interfaces[i] = u2Read(fd);
+    // };
 
-    // lendo fields count 
-    cf->fields_count = u2Read(fd);
+    // // lendo fields count 
+    // cf->fields_count = u2Read(fd);
 
-    // lendo os FIELDS
-    read_fields(fd, cf);
+    // // lendo os FIELDS
+    // read_fields(fd, cf);
 
 
 
