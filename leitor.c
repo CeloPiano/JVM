@@ -46,24 +46,42 @@ static u8 u8Read(FILE *fd){
 // aqui já passamos o attribute info em questão
 void read_attribute(FILE *fd, attribute_info *attr_info, u2 attr_count, cp_info *cp){
 
-    for(int i = 0; i < 2; i++){
+    for(int i = 0; i < attr_count; i++){
 
-        attr_info->attribute_name_index = u2Read(fd);
-        attr_info->attribute_lenght = u2Read(fd);
+        attr_info[i].attribute_name_index = u2Read(fd);
 
-        printf("%s", Utf8_decoder(&cp[attr_info->attribute_name_index]));
+        // The value of the attribute_length item indicates the length of the subsequent information in bytes.  Indica a quantidade de bytes que temos que pular (info util para ignorar os tipos de atributos que não iremos utilizar)
+        attr_info[i].attribute_lenght = u4Read(fd);
+
+        // com base nessa variavel iremos escolher o tipo de attribute.
+        u2 attribute_name_index = attr_info[i].attribute_name_index;
+        u4 attribute_lenght = attr_info[i].attribute_lenght;
+        // prints debug...
+        // printf("name_index: %d \n", attribute_name_index);
+        // printf("name: %s \n", Utf8_decoder(&cp[attribute_name_index]));
+        // printf("lenght: %d \n", attr_info[i].attribute_lenght);
 
 
-        // agora vamos trabalhar com a union
-        // switch (attr_info->attribute_lenght)
-        // {
-        // case /* constant-expression */:
-        //     /* code */
-        //     break;
-        
-        // default:
-        //     break;
-        // }
+        // agora vamos trabalhar com a union 
+        char* attribute_name = Utf8_decoder(&cp[attribute_name_index]); 
+
+        // aqui o switch não é a solução, não há como utilizar switch com strings
+
+        if(!strcmp(attribute_name, "ConstantValue")){
+            attr_info[i].attribute_info_union.constantvalue_index = u2Read(fd);
+            // debug print:
+            // printf("attribute name: %d", attr_info[i].attribute_info_union.constantvalue_index);
+        }
+        else if(strcmp(attribute_name, "Code")){
+            // fazer...
+        }
+        else{
+            for (int byte = 0; byte < attr_info[i].attribute_lenght; byte++){
+                // ler o fd para pular lenght bytes para as instruções que não temos!
+                u1Read(fd);
+            }
+        };
+
 
     }; 
 };
@@ -92,6 +110,8 @@ void read_fields(FILE *fd, ClassFile *cf){
         
         // lendo attributes_count
         cf->fields[i].attributes_count = u2Read(fd);
+        // debug count:
+        // printf("%d\n",cf->fields[i].attributes_count); 
 
         // alocando o espaço para os attributes do field
         cf->fields[i].attributes = (attribute_info *) malloc(cf->fields[i].attributes_count * sizeof(attribute_info));
@@ -127,7 +147,6 @@ void read_cp_info(FILE *fd, ClassFile *cf){
     cf->constant_pool = (cp_info *) malloc(cf->constant_pool_count * sizeof(cp_info));
     
     for(int cp_index = 1; cp_index < cf->constant_pool_count; cp_index++){
-
 
         cp_info *cp_info = &cf->constant_pool[cp_index];
 
@@ -254,31 +273,31 @@ void class_reader(FILE *fd, ClassFile *cf){
     // lendo o cp
     read_cp_info(fd, cf);
 
-    // // lendo acess flags
-    // cf->access_flags = u2Read(fd);
+    // lendo acess flags
+    cf->access_flags = u2Read(fd);
     
-    // // lendo this_class
-    // cf->this_class = u2Read(fd);
+    // lendo this_class
+    cf->this_class = u2Read(fd);
     
-    // // lendo super_class
-    // cf->super_class = u2Read(fd);
+    // lendo super_class
+    cf->super_class = u2Read(fd);
 
-    // // lendo interfaces count 
-    // cf->interfaces_count = u2Read(fd);    
+    // lendo interfaces count 
+    cf->interfaces_count = u2Read(fd);    
 
-    // // alocando em memória o interfaces count
-    // cf->interfaces = (u2*) malloc(cf->interfaces_count * sizeof(u2));
+    // alocando em memória o interfaces count
+    cf->interfaces = (u2*) malloc(cf->interfaces_count * sizeof(u2));
 
-    // // preenchendo o vetor de interfaces
-    // for (int i = 0; i < cf->interfaces_count; i++){
-    //     cf->interfaces[i] = u2Read(fd);
-    // };
+    // preenchendo o vetor de interfaces
+    for (int i = 0; i < cf->interfaces_count; i++){
+        cf->interfaces[i] = u2Read(fd);
+    };
 
-    // // lendo fields count 
-    // cf->fields_count = u2Read(fd);
+    // lendo fields count 
+    cf->fields_count = u2Read(fd);
 
-    // // lendo os FIELDS
-    // read_fields(fd, cf);
+    // lendo os FIELDS
+    read_fields(fd, cf);    
 
 
 
