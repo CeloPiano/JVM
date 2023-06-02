@@ -1,5 +1,4 @@
 // tirei o types dos headers e coloquei
-#include "types.h"
 #include "leitor.c"
 #include "exibidor.c"
 
@@ -13,18 +12,36 @@
 int main(void){
 
     // Lendo o arquivo .CLASS
-    char path[] = "hello_num_world.class";
+    char path[] = "zoo.class";
     FILE *fd = fopen(path, "rb");
 
     // Declarando o ponteiro do tipo ClassFile (struct) - Aqui temos que alocar um espaço na memoria do tamanho de classfile e fazer um casting
     ClassFile *cf = (ClassFile *) malloc(sizeof(ClassFile));
 
     class_reader(fd, cf);
-    exibir_cp_info(cf);
+    // exibir_cp_info(cf);
 
-    // printf("\n name and index: %d \n\n", cf->constant_pool[1].constant_type_union.Methodref_info.class_index );
     // printf("\n tag: %d \n\n", cf->constant_pool[20].tag);
+    // printf("\n class index: %d \n", cf->constant_pool[1].constant_type_union.Methodref_info.class_index );
+    // printf("\n name and type: %d \n", cf->constant_pool[1].constant_type_union.Methodref_info.name_and_type_index );
         
+
+
+    // printf("\n class index: %d \n", cf->constant_pool[24].constant_type_union.Class_info.name_index);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     // aqui podemos colocar tudo em uma funcao:

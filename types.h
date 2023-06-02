@@ -80,14 +80,6 @@ typedef struct innerClasses_attribute {
     inner_classes *inner_classes;
 } innerClasses_attribute;
 
-// ---------------------------- EXCEPTION ATTRIBUTE ----------------------------- //
-
-typedef struct exceptions_attribute {
-    u2 number_of_exceptions;
-    // cada valor é um constant pool index -> constant class info
-    u2 *exception_index_table;
-}exceptions_attribute;
-
 // ---------------------------- EXCEPTION TABLE STRUCTURE ----------------------------- //
 
 /// @brief Exception Table Info
@@ -97,6 +89,14 @@ typedef struct exception_table{
     u2 handler_pc;
     u2 catch_type;
 } exception_table;
+
+// ---------------------------- EXCEPTION ATTRIBUTE ----------------------------- //
+
+typedef struct exceptions_attribute {
+    u2 number_of_exceptions;
+    // cada valor é um constant pool index -> constant class info
+    u2 *exception_index_table;
+}exceptions_attribute;
 
 
 // ---------------------------- CODE ATTRIBUTE ----------------------------- //

@@ -43,12 +43,21 @@ class cat extends animal implements animals_actions{
 
 
 public class zoo {
-
+    
     static {int x = 10; System.out.println("Dentro do bloco estático animal!");};
-
+    
+    
     String nome_zelador = "José"; 
     int idade_zelador = 72;
     double altura_zelador = 1.75;
+    
+    // attribute final 
+    // qual a diferença entre essas duas?
+    // uma é de classe e a outra de instância 
+    // ambas vão para a constant pool
+    static final int numero_favorito = 20;
+    final int ano_nascimento = 1923;
+
 
     public static void main(String[] args){
         String cor_pelo_gatinho = "azul";

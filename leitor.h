@@ -32,6 +32,14 @@ static u4 u4Read(FILE * fd);
 /// @param fd Ponteiro para Byte do arquivo .Class lido
 static u8 u8Read(FILE * fd);
 
+
+
+
+/// @brief Funçao que le a exception table 
+/// @param fd Ponteiro para Byte do arquivo .Class lido
+void read_exception_table(FILE *fd, exception_table *exception_table, u2 exception_table_length);
+
+
 /// @brief Funçao que le o arquivo 
 /// @param fd Ponteiro para Byte do arquivo .Class lido
 /// @param attr_info Ponteiro para a lista de attributos
