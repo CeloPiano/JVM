@@ -11,7 +11,6 @@
 #include <stdint.h>
 #ifndef TYPESH
 #define TYPESH
-#endif
 
 
 // definindo os tamanhos
@@ -81,14 +80,6 @@ typedef struct innerClasses_attribute {
     inner_classes *inner_classes;
 } innerClasses_attribute;
 
-// ---------------------------- EXCEPTION ATTRIBUTE ----------------------------- //
-
-typedef struct exceptions_attribute {
-    u2 number_of_exceptions;
-    // cada valor é um constant pool index -> constant class info
-    u2 *exception_index_table;
-}exceptions_attribute;
-
 // ---------------------------- EXCEPTION TABLE STRUCTURE ----------------------------- //
 
 /// @brief Exception Table Info
@@ -98,6 +89,14 @@ typedef struct exception_table{
     u2 handler_pc;
     u2 catch_type;
 } exception_table;
+
+// ---------------------------- EXCEPTION ATTRIBUTE ----------------------------- //
+
+typedef struct exceptions_attribute {
+    u2 number_of_exceptions;
+    // cada valor é um constant pool index -> constant class info
+    u2 *exception_index_table;
+}exceptions_attribute;
 
 
 // ---------------------------- CODE ATTRIBUTE ----------------------------- //
@@ -115,19 +114,22 @@ typedef struct code_attribute{
     struct attribute_info *attributes; //como está aqui embaixo, temos que referenciar como struct
 } code_attribute;
 
-// ---------------------------- ATTRIBUTE INFO ----------------------------- //
+// ---------------------------- ATTRIBUTE ----------------------------- //
 
 /// @brief Struct que define o Attribute info
 typedef struct attribute_info{
-    u2 attribute_name_index;
-    u4 attribute_lenght;
+    u2 attribute_name_index; //nome em utf8
+    u4 attribute_lenght; //
 
     // aqui temos as diferencas entre os atributos
     union attribute_info_union{
         u2 constantvalue_index; //aqui não precisamos de uma struct completa visto que temos apenas campo 
         code_attribute code_attribute;
-        
-        
+        exceptions_attribute exceptions_attribute;
+        innerClasses_attribute innerClasses_attribute;
+        lineNumberTable_attribute lineNumberTable_attribute;
+        localVariableTable_attribute localVariableTable_attribute;
+
     } attribute_info_union;
     
 } attribute_info;
@@ -237,9 +239,9 @@ typedef struct ClassFile
     u2 interfaces_count;
     u2 *interfaces; //aqui temos um array com os indices apontando para o constant poll
     u2 fields_count;
-    // field_info *fields;
+    field_info *fields;
     u2 methods_count;
-    // method_info *methods;
+    method_info *methods;
     u2 attributes_count;
     attribute_info *attributes;
 
@@ -264,3 +266,5 @@ enum tag_to_class
     CONSTANT_InvokeDynamic_info = 18,
     CONSTANT_Utf8_info = 1,
 };
+
+#endif
