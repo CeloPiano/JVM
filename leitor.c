@@ -468,20 +468,15 @@ void class_reader(FILE *fd, ClassFile *cf)
 
     // Lendo o magic
     cf->magic = u4Read(fd);
-    printf("Magic: %d \n", cf->minor_version);
 
     // Lendo minor_version
     cf->minor_version = u2Read(fd);
-    printf("Minor_version: %d \n", cf->minor_version);
 
     // Lendo major_version
     cf->major_version = u2Read(fd);
-    printf("Major_version: %d \n", cf->major_version);
 
     // Lendo constant_pool_count
     cf->constant_pool_count = u2Read(fd);
-    printf("Constant pool count: %d \n \n", cf->constant_pool_count);
-
     // lendo o cp
     read_cp_info(fd, cf);
 

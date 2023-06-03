@@ -30,8 +30,46 @@ char* Utf8_decoder(cp_info *cp_info_pointer){
     return string;
 }
 
+char * accFlag_decoder(u2 accFlag) {
+    char *flagName = (char *) malloc(11 * sizeof(char));
 
+    switch (accFlag) {
+        case 0x0001:
+            strcat(flagName, "Public");
+            break;
+        case 0x0010:
+            strcat(flagName, "Final");
+            break;
+        case 0x0020:
+            strcat(flagName, "Super");
+            break;
+        case 0x0200:
+            strcat(flagName, "Interface");
+            break;
+        case 0x0400:
+            strcat(flagName, "Abstract");
+            break;
+        case 0x1000:
+            strcat(flagName, "Synthetic");
+            break;
+        case 0x2000:
+            strcat(flagName, "Annotation");
+            break;
+        case 0x4000:
+            strcat(flagName, "Enum");
+            break;
+        default:
+            strcat(flagName, "Erro");
+    }
 
+    return flagName;
+}
+
+char *class_decoder(cp_info *cp, int classIndex) {
+    int UTF8index = cp[classIndex].constant_type_union.Class_info.name_index;
+    char *className = Utf8_decoder(&cp[UTF8index]);
+    return className;
+}
 
 // exibir o cp_info
 // iremos precisar de um ponteiro para o classfile 
@@ -182,5 +220,33 @@ void exibir_cp_info(ClassFile *classFile){
         };
 
     }
+
+}
+
+void class_exhibitor(ClassFile *cf) {
+    // Exibição magic number
+    printf("Magic: %d \n", cf->minor_version);
+
+    // Exibição minor version
+    printf("Minor version: %d \n", cf->minor_version);
+
+    // Exibição major version
+    printf("Major version: %d \n", cf->major_version);
+
+    // Exibição constant pool
+    printf("Constant pool size: %d \n", cf->constant_pool_count);
+    exibir_cp_info(cf);
+
+    // Exibição access flags
+    printf("Access flags: %s \n", accFlag_decoder(cf->access_flags));
+    printf("Access flags: %d \n", cf->access_flags);
+
+    // Exibição this class 
+    printf("This class: #%d %s \n", cf->this_class, class_decoder(cf->constant_pool, cf->this_class));
+
+    // Exibição super class
+    printf("Super class: #%d %s \n", cf->super_class, class_decoder(cf->constant_pool, cf->super_class));
+
+    // Exibição 
 
 }
