@@ -270,3 +270,29 @@ void class_exibitor(ClassFile *cf) {
     
 
 }
+
+void exibir_attributes_info(attribute_info *attr_info, cp_info *cp_info_pointer){
+    printf("\n");
+    printf("Generic info _____________________________\n\n");
+    printf("Attribute name index: %d <%s> \n", attr_info->attribute_name_index, Utf8_decoder(cp_info_pointer + attr_info->attribute_name_index));
+    printf("Attribute length: %d\n", attr_info->attribute_lenght);
+    printf("Specific info _____________________________\n\n");
+
+    char * attr_string;
+    attr_string = Utf8_decoder(cp_info_pointer + attr_info->attribute_name_index);
+
+    if(!strcmp(attr_string, "Code")){
+        // adicionar função
+        printf("Erro na alocação!\n");
+        exit(2);
+    }
+    else if(!strcmp(attr_string, "InnerClasses")){
+        printf("Inner Classes length: %d\n", attr_info->attribute_info_union.innerClasses_attribute.number_of_classes);
+        for(int i = 0; i < attr_info->attribute_info_union.innerClasses_attribute.number_of_classes; i++){
+            printf("Inner Class Info: %d\n", attr_info->attribute_info_union.innerClasses_attribute.inner_classes[i].inner_class_info_index);
+            printf("Outer Class Info: %d\n", attr_info->attribute_info_union.innerClasses_attribute.inner_classes[i].outer_class_info_index);
+            printf("Inner Class Index: %d\n", attr_info->attribute_info_union.innerClasses_attribute.inner_classes[i].inner_name_index);
+            printf("Inner Class Access Flags: %d\n", attr_info->attribute_info_union.innerClasses_attribute.inner_classes[i].inner_class_access_flags);
+        }
+    }
+}
