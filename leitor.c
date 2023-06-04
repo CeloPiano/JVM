@@ -77,12 +77,13 @@ void read_attribute_code(FILE *fd, attribute_info *attr_info, cp_info *cp)
     // alocar na memória o array de byte/up codes
     attr_info->attribute_info_union.code_attribute.code = (u1 *)malloc(attr_info->attribute_info_union.code_attribute.code_lenght * sizeof(u1));
 
-    // alocando os bytecodes
+    // alocando os bytecodes no code[code_lenght]
     for (int i = 0; i < attr_info->attribute_info_union.code_attribute.code_lenght; i++)
     {
         attr_info->attribute_info_union.code_attribute.code[i] = u1Read(fd);
     };
 
+    // alocando tamanho da tabela de excessões
     attr_info->attribute_info_union.code_attribute.exception_table_length = u2Read(fd);
 
     // alocando espaço para as tabelas de excessão
@@ -93,6 +94,10 @@ void read_attribute_code(FILE *fd, attribute_info *attr_info, cp_info *cp)
 
     // realizar a leitura dos attributes da função
     attr_info->attribute_info_union.code_attribute.attribute_count = u2Read(fd);
+
+    // alocando espaço para os attributes
+    attr_info->attribute_info_union.code_attribute.attributes = (attribute_info *) malloc(attr_info->attribute_info_union.code_attribute.attribute_count * sizeof(attribute_info));
+
     read_attribute(fd, attr_info->attribute_info_union.code_attribute.attributes, attr_info->attribute_info_union.code_attribute.attribute_count, cp);
 }
 
@@ -114,6 +119,8 @@ void read_attribute_innerClasses(FILE *fd, attribute_info *attr_info)
 {
     attr_info->attribute_info_union.innerClasses_attribute.number_of_classes = u2Read(fd);
     attr_info->attribute_info_union.innerClasses_attribute.inner_classes = (inner_classes *)malloc(attr_info->attribute_info_union.innerClasses_attribute.number_of_classes * sizeof(inner_classes));
+    
+    // lendo o number of classes do innerclass
     for (int i = 0; i < attr_info->attribute_info_union.innerClasses_attribute.number_of_classes; i++)
     {
         attr_info->attribute_info_union.innerClasses_attribute.inner_classes[i].inner_class_info_index = u2Read(fd);
