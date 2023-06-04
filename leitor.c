@@ -165,7 +165,9 @@ void read_attribute(FILE *fd, attribute_info *attr_info, u2 attr_count, cp_info 
 
     for (int i = 0; i < attr_count; i++)
     {
+        // printf("index read_attribute = %d \n", i);
         attribute_info *attr = &attr_info[i];
+        
         attr->attribute_name_index = u2Read(fd);
 
         // The value of the attribute_length item indicates the length of the subsequent information in bytes.  Indica a quantidade de bytes que temos que pular (info util para ignorar os tipos de atributos que não iremos utilizar)
@@ -176,7 +178,7 @@ void read_attribute(FILE *fd, attribute_info *attr_info, u2 attr_count, cp_info 
         u4 attribute_lenght = attr->attribute_lenght;
 
         // prints debug...
-        // printf("name_index: %d \n", attribute_name_index);
+        // printf("name_index: %d \n", attr->attribute_name_index);
         // printf("name: %s \n", Utf8_decoder(&cp[attribute_name_index]));
         // printf("lenght: %d \n", attr_info[i].attribute_lenght);
 
@@ -184,88 +186,29 @@ void read_attribute(FILE *fd, attribute_info *attr_info, u2 attr_count, cp_info 
         char *attribute_name = Utf8_decoder(&cp[attribute_name_index]);
 
         // aqui o switch não é a solução, não há como utilizar switch com strings
-        if (strcmp(attribute_name, "ConstantValue"))
+        if (!strcmp(attribute_name, "ConstantValue"))
         {
             read_attribute_constant(fd, attr);
-            // attr_info->attribute_info_union.constantvalue_index = u2Read(fd);
-            // debug print:
-            // printf("attribute name: %d", attr_info[i].attribute_info_union.constantvalue_index);
         }
-        else if (strcmp(attribute_name, "Code"))
+        else if (!strcmp(attribute_name, "Code"))
         {
             read_attribute_code(fd, attr, cp);
-            // attr_info->attribute_info_union.code_attribute.max_stack = u2Read(fd);
-            // attr_info->attribute_info_union.code_attribute.max_locals = u2Read(fd);
-            // attr_info->attribute_info_union.code_attribute.code_lenght = u4Read(fd);
-
-            // // alocar na memória o array de byte/up codes
-            // attr_info->attribute_info_union.code_attribute.code = (u1 *)malloc(attr_info->attribute_info_union.code_attribute.code_lenght * sizeof(u1));
-
-            // alocando os bytecodes
-            // for (int i = 0; i < attr_info->attribute_info_union.code_attribute.code_lenght; i++)
-            // {
-            //     attr_info->attribute_info_union.code_attribute.code[i] = u1Read(fd);
-            // };
-
-            // attr_info->attribute_info_union.code_attribute.exception_table_length = u2Read(fd);
-
-            // // alocando espaço para as tabelas de excessão
-            // attr_info->attribute_info_union.code_attribute.exception_table = (exception_table *)malloc(attr_info->attribute_info_union.code_attribute.exception_table_length * sizeof(exception_table));
-
-            // // preenchendo -> passar o endereço para array e o seu tamanho
-            // read_attribute_code_exception_table(fd, attr_info->attribute_info_union.code_attribute.exception_table, attr_info->attribute_info_union.code_attribute.exception_table_length);
-
-            // // realizar a leitura dos attributes da função
-            // attr_info->attribute_info_union.code_attribute.attribute_count = u2Read(fd);
-            // read_attribute(fd, attr_info->attribute_info_union.code_attribute.attributes, attr_info->attribute_info_union.code_attribute.attribute_count, cp);
         }
-        else if (strcmp(attribute_name, "Exceptions"))
+        else if (!strcmp(attribute_name, "Exceptions"))
         {
             read_attribute_exceptions(fd, attr);
-            // attr_info->attribute_info_union.exceptions_attribute.number_of_exceptions = u2Read(fd);
-            // attr_info->attribute_info_union.exceptions_attribute.exception_index_table = (u2 *)malloc(attr_info->attribute_info_union.exceptions_attribute.number_of_exceptions * sizeof(u2));
-            // for (int i = 0; i < attr_info->attribute_info_union.exceptions_attribute.number_of_exceptions; i++)
-            // {
-            //     attr_info->attribute_info_union.exceptions_attribute.exception_index_table[i] = u2Read(fd);
-            // }
         }
-        else if (strcmp(attribute_name, "InnerClasses"))
+        else if (!strcmp(attribute_name, "InnerClasses"))
         {
             read_attribute_innerClasses(fd, attr);
-            // attr_info->attribute_info_union.innerClasses_attribute.number_of_classes = u2Read(fd);
-            // attr_info->attribute_info_union.innerClasses_attribute.inner_classes = (inner_classes *)malloc(attr_info->attribute_info_union.innerClasses_attribute.number_of_classes * sizeof(inner_classes));
-            // for (int i = 0; i < attr_info->attribute_info_union.innerClasses_attribute.number_of_classes; i++)
-            // {
-            //     attr_info->attribute_info_union.innerClasses_attribute.inner_classes[i].inner_class_info_index = u2Read(fd);
-            //     attr_info->attribute_info_union.innerClasses_attribute.inner_classes[i].outer_class_info_index = u2Read(fd);
-            //     attr_info->attribute_info_union.innerClasses_attribute.inner_classes[i].inner_name_index = u2Read(fd);
-            //     attr_info->attribute_info_union.innerClasses_attribute.inner_classes[i].inner_class_access_flags = u2Read(fd);
-            // }
         }
-        else if (strcmp(attribute_name, "LineNumberTable"))
+        else if (!strcmp(attribute_name, "LineNumberTable"))
         {
             read_attribute_lineNumberTable(fd, attr);
-            // attr_info->attribute_info_union.lineNumberTable_attribute.line_number_table_length = u2Read(fd);
-            // attr_info->attribute_info_union.lineNumberTable_attribute.line_number_table = (line_number_table *)malloc(attr_info->attribute_info_union.lineNumberTable_attribute.line_number_table_length * sizeof(line_number_table));
-            // for (int i = 0; i < attr_info->attribute_info_union.lineNumberTable_attribute.line_number_table_length; i++)
-            // {
-            //     attr_info->attribute_info_union.lineNumberTable_attribute.line_number_table[i].start_pc = u2Read(fd);
-            //     attr_info->attribute_info_union.lineNumberTable_attribute.line_number_table[i].line_number = u2Read(fd);
-            // }
         }
-        else if (strcmp(attribute_name, "LocalVariableTable"))
+        else if (!strcmp(attribute_name, "LocalVariableTable"))
         {
             read_attribute_localVariableTable(fd, attr);
-            // attr_info->attribute_info_union.localVariableTable_attribute.local_variable_table_length = u2Read(fd);
-            // attr_info->attribute_info_union.localVariableTable_attribute.local_variable_table = (local_variable_table *)malloc(attr_info->attribute_info_union.localVariableTable_attribute.local_variable_table_length * sizeof(local_variable_table));
-            // for (int i = 0; i < attr_info->attribute_info_union.localVariableTable_attribute.local_variable_table_length; i++)
-            // {
-            //     attr_info->attribute_info_union.localVariableTable_attribute.local_variable_table[i].start_pc = u2Read(fd);
-            //     attr_info->attribute_info_union.localVariableTable_attribute.local_variable_table[i].length = u2Read(fd);
-            //     attr_info->attribute_info_union.localVariableTable_attribute.local_variable_table[i].name_index = u2Read(fd);
-            //     attr_info->attribute_info_union.localVariableTable_attribute.local_variable_table[i].descriptor_index = u2Read(fd);
-            //     attr_info->attribute_info_union.localVariableTable_attribute.local_variable_table[i].index = u2Read(fd);
-            // }
         }
         else
         {
@@ -301,7 +244,9 @@ void read_methods(FILE *fd, ClassFile *cf)
         cf->methods[i].attributes = (attribute_info *)malloc(cf->attributes_count * sizeof(attribute_info));
 
         // lendo os attributes
-        read_attribute(fd, cf->methods[i].attributes, cf->methods[i].attributes_count, cf->constant_pool);
+        if(cf->methods[i].attributes_count){
+            read_attribute(fd, cf->methods[i].attributes, cf->methods[i].attributes_count, cf->constant_pool);
+        };
     };
 };
 
@@ -316,6 +261,7 @@ void read_fields(FILE *fd, ClassFile *cf)
     // alocar em memória os fields
     for (int i = 0; i < cf->fields_count; i++)
     {
+        // printf("index: %d - ", i);
         // lendo flags
         cf->fields[i].acess_flags = u2Read(fd);
 
@@ -332,9 +278,12 @@ void read_fields(FILE *fd, ClassFile *cf)
 
         // alocando o espaço para os attributes do field
         cf->fields[i].attributes = (attribute_info *)malloc(cf->fields[i].attributes_count * sizeof(attribute_info));
+        // printf("attr_count: %d \n", cf->fields[i].attributes_count);
 
         // lendo field attributes
-        read_attribute(fd, cf->fields[i].attributes, cf->fields[i].attributes_count, cf->constant_pool);
+        if (cf->fields[i].attributes_count){
+            read_attribute(fd, cf->fields[i].attributes, cf->fields[i].attributes_count, cf->constant_pool);
+        }
     };
 };
 
@@ -513,10 +462,25 @@ void class_reader(FILE *fd, ClassFile *cf)
 
     // lendo os FIELDS
     read_fields(fd, cf);
-
+    
     // lendo method count
     cf->methods_count = u2Read(fd);
 
     // lendo os METHODS
     read_methods(fd, cf);
+
+    // pegar o count de attributes
+    cf->attributes_count = u2Read(fd);
+    
+    // alocar os attributes do .class
+    cf->attributes = (attribute_info *) malloc(cf->attributes_count * sizeof(attribute_info));
+
+    // lendo os Attributes
+    
+    if(cf->attributes_count){
+        for (int i = 0; i < cf->attributes_count; i++){
+            read_attribute(fd, &cf->attributes[i], cf->attributes_count, cf->constant_pool);
+        };
+    };
+
 };

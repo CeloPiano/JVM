@@ -33,27 +33,27 @@ char* Utf8_decoder(cp_info *cp_info_pointer){
 char * accFlag_decoder(u2 accFlag) {
     char *flagName = (char *) malloc(128 * sizeof(char));
     if (accFlag & 0x0001) {
-        strcat(flagName, "Public ");
+        strcat(flagName, "public ");
     }if (accFlag & 0x0002) {
-        strcat(flagName, "Private ");
+        strcat(flagName, "private ");
     }if (accFlag & 0x0004) {
-        strcat(flagName, "Protected ");
+        strcat(flagName, "protected ");
     }if (accFlag & 0x0008) {
-        strcat(flagName, "Static ");
+        strcat(flagName, "static ");
     } if (accFlag & 0x0010) {
-        strcat(flagName, "Final ");
+        strcat(flagName, "final ");
     } if (accFlag & 0x0020) {
-        strcat(flagName, "Super ");
+        strcat(flagName, "super ");
     } if (accFlag & 0x0200) {
-        strcat(flagName, "Interface ");
+        strcat(flagName, "interface ");
     } if (accFlag & 0x0400) {
-        strcat(flagName, "Abstract ");
+        strcat(flagName, "abstract ");
     } if (accFlag & 0x1000) {
-        strcat(flagName, "Synthetic ");
+        strcat(flagName, "synthetic ");
     } if (accFlag & 0x2000) {
-        strcat(flagName, "Annotation ");
+        strcat(flagName, "annotation ");
     } if (accFlag & 0x4000) {
-        strcat(flagName, "Enum ");
+        strcat(flagName, "enum ");
     }
 
     return flagName;
@@ -67,12 +67,12 @@ char *class_decoder(cp_info *cp, int classIndex) {
 
 void exibir_interfaces (u2 *interfaces, int interfacesCount, cp_info *cp) {
     if (interfacesCount != 0) {
-        printf("Início Interfaces \n \n");
+        printf("Início Interfaces: \n \n");
         for (int i = 0; i < interfacesCount; i++) {
             printf("[0%d] - ", i);
-            printf("Class name: #%d %s", interfaces[i], class_decoder(cp, interfaces[i]));
+            printf("Class name: #%d %s \n", interfaces[i], class_decoder(cp, interfaces[i]));
         }
-        printf("Fim Interfaces \n \n");
+        printf("\nFim Interfaces \n \n");
     }
 }
 
@@ -210,9 +210,9 @@ void exibir_cp_info(ClassFile *classFile){
             case(CONSTANT_Utf8_info):
             {   
                 // lenght of byte array?
-                printf("lenght of Byte array: %d", constantPool[i].constant_type_union.Utf8.length);
+                printf("lenght of Byte array: %d \n", constantPool[i].constant_type_union.Utf8.length);
                 // lenght of string?
-                printf("lenght of string: %d", constantPool[i].constant_type_union.Utf8.length);
+                printf("lenght of string: %d \n", constantPool[i].constant_type_union.Utf8.length);
                 // String
                 printf("String: %s \n \n", Utf8_decoder(&constantPool[i]));
             }   
@@ -227,7 +227,7 @@ void exibir_cp_info(ClassFile *classFile){
 
 }
 
-void class_exhibitor(ClassFile *cf) {
+void class_exibitor(ClassFile *cf) {
     // Exibição magic number
     printf("Magic: %d \n", cf->minor_version);
 
@@ -238,11 +238,10 @@ void class_exhibitor(ClassFile *cf) {
     printf("Major version: %d \n", cf->major_version);
 
     // Exibição constant pool size
-    printf("Constant pool size: %d \n", cf->constant_pool_count);
+    printf("Constant Pool Count: %d \n", cf->constant_pool_count);
 
     // Exibição access flags
     printf("Access flags: %s \n", accFlag_decoder(cf->access_flags));
-    // printf("Access flags: %d \n", cf->access_flags);
 
     // Exibição this class 
     printf("This class: #%d %s \n", cf->this_class, class_decoder(cf->constant_pool, cf->this_class));
@@ -265,7 +264,9 @@ void class_exhibitor(ClassFile *cf) {
     // Exibição constant pool
     exibir_cp_info(cf);
 
+    
     // Exibição interfaces
     exibir_interfaces(cf->interfaces, cf->interfaces_count, cf->constant_pool);
+    
 
 }
