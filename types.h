@@ -45,7 +45,7 @@ typedef struct local_variable_table{
 
 typedef struct localVariableTable_attribute {
     u2 local_variable_table_length;
-    local_variable_table local_variable_table;
+    local_variable_table *local_variable_table;
 } localVariableTable_attribute;
 
 

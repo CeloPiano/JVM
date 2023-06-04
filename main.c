@@ -19,7 +19,7 @@ int main(void){
     ClassFile *cf = (ClassFile *) malloc(sizeof(ClassFile));
 
     class_reader(fd, cf);
-    // exibir_cp_info(cf);
+    class_exhibitor(cf);
 
     // printf("\n tag: %d \n\n", cf->constant_pool[20].tag);
     // printf("\n class index: %d \n", cf->constant_pool[1].constant_type_union.Methodref_info.class_index );
