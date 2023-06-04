@@ -31,35 +31,29 @@ char* Utf8_decoder(cp_info *cp_info_pointer){
 }
 
 char * accFlag_decoder(u2 accFlag) {
-    char *flagName = (char *) malloc(11 * sizeof(char));
-
-    switch (accFlag) {
-        case 0x0001:
-            strcat(flagName, "Public");
-            break;
-        case 0x0010:
-            strcat(flagName, "Final");
-            break;
-        case 0x0020:
-            strcat(flagName, "Super");
-            break;
-        case 0x0200:
-            strcat(flagName, "Interface");
-            break;
-        case 0x0400:
-            strcat(flagName, "Abstract");
-            break;
-        case 0x1000:
-            strcat(flagName, "Synthetic");
-            break;
-        case 0x2000:
-            strcat(flagName, "Annotation");
-            break;
-        case 0x4000:
-            strcat(flagName, "Enum");
-            break;
-        default:
-            strcat(flagName, "Erro");
+    char *flagName = (char *) malloc(128 * sizeof(char));
+    if (accFlag & 0x0001) {
+        strcat(flagName, "Public ");
+    }if (accFlag & 0x0002) {
+        strcat(flagName, "Private ");
+    }if (accFlag & 0x0004) {
+        strcat(flagName, "Protected ");
+    }if (accFlag & 0x0008) {
+        strcat(flagName, "Static ");
+    } if (accFlag & 0x0010) {
+        strcat(flagName, "Final ");
+    } if (accFlag & 0x0020) {
+        strcat(flagName, "Super ");
+    } if (accFlag & 0x0200) {
+        strcat(flagName, "Interface ");
+    } if (accFlag & 0x0400) {
+        strcat(flagName, "Abstract ");
+    } if (accFlag & 0x1000) {
+        strcat(flagName, "Synthetic ");
+    } if (accFlag & 0x2000) {
+        strcat(flagName, "Annotation ");
+    } if (accFlag & 0x4000) {
+        strcat(flagName, "Enum ");
     }
 
     return flagName;
@@ -69,6 +63,17 @@ char *class_decoder(cp_info *cp, int classIndex) {
     int UTF8index = cp[classIndex].constant_type_union.Class_info.name_index;
     char *className = Utf8_decoder(&cp[UTF8index]);
     return className;
+}
+
+void exibir_interfaces (u2 *interfaces, int interfacesCount, cp_info *cp) {
+    if (interfacesCount != 0) {
+        printf("Início Interfaces \n \n");
+        for (int i = 0; i < interfacesCount; i++) {
+            printf("[0%d] - ", i);
+            printf("Class name: #%d %s", interfaces[i], class_decoder(cp, interfaces[i]));
+        }
+        printf("Fim Interfaces \n \n");
+    }
 }
 
 // exibir o cp_info
@@ -81,7 +86,7 @@ void exibir_cp_info(ClassFile *classFile){
     // pegar o endereço do constant pool salvo e colocar no ponteiro constantPool.
     cp_info *constantPool = classFile->constant_pool;
     
-    printf("Constant Pool \n \n");
+    printf("Início Constant Pool \n \n");
 
     // iterar nos constant pools e ir printando com base em cada um de (1 até cp_count - 1) 
     for(int i = 1; i < cp_info_count; i++){
@@ -215,11 +220,10 @@ void exibir_cp_info(ClassFile *classFile){
 
             default:
                 break;
-
-
         };
-
     }
+
+    printf("Fim Constant Pool \n \n");
 
 }
 
@@ -233,13 +237,12 @@ void class_exhibitor(ClassFile *cf) {
     // Exibição major version
     printf("Major version: %d \n", cf->major_version);
 
-    // Exibição constant pool
+    // Exibição constant pool size
     printf("Constant pool size: %d \n", cf->constant_pool_count);
-    exibir_cp_info(cf);
 
     // Exibição access flags
     printf("Access flags: %s \n", accFlag_decoder(cf->access_flags));
-    printf("Access flags: %d \n", cf->access_flags);
+    // printf("Access flags: %d \n", cf->access_flags);
 
     // Exibição this class 
     printf("This class: #%d %s \n", cf->this_class, class_decoder(cf->constant_pool, cf->this_class));
@@ -247,6 +250,22 @@ void class_exhibitor(ClassFile *cf) {
     // Exibição super class
     printf("Super class: #%d %s \n", cf->super_class, class_decoder(cf->constant_pool, cf->super_class));
 
-    // Exibição 
+    // Exibição interfaces count
+    printf("Interfaces count: %d\n", cf->interfaces_count);
+
+    // Exibição fields count 
+    printf("Fields count: %d \n", cf->fields_count);
+
+    // Exibição methods count
+    printf("Methods count: %d \n", cf->methods_count);
+
+    // Exibição attributes count
+    printf("Attributes count: %d \n", cf->attributes_count);
+
+    // Exibição constant pool
+    exibir_cp_info(cf);
+
+    // Exibição interfaces
+    exibir_interfaces(cf->interfaces, cf->interfaces_count, cf->constant_pool);
 
 }
