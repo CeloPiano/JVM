@@ -20,7 +20,7 @@ char* Utf8_decoder(cp_info * cp_info_pointer);
 
 /// @brief Função que exibe o cp info com base no ponteiro que aponta para os cp_infos alocados 
 /// @param classFile Ponteiro que aponta para o classfile em questão
-void exibir_cp_info(ClassFile *classFile);
+void cp_info_exibitor(ClassFile *classFile);
 
 
 #endif

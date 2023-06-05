@@ -30,6 +30,22 @@ char* Utf8_decoder(cp_info *cp_info_pointer){
     return string;
 }
 
+
+// ----------------------------- METHODS -------------------------------------
+
+void methods_exibitor(ClassFile *cf){
+
+    u2 field_counts = cf->fields_count;
+
+    // iterar em cada fields
+    for (int i = 0; i < field_counts; i++){
+
+    };
+
+
+};
+
+
 char * accFlag_decoder(u2 accFlag) {
     char *flagName = (char *) malloc(128 * sizeof(char));
     if (accFlag & 0x0001) {
@@ -65,12 +81,12 @@ char *class_decoder(cp_info *cp, int classIndex) {
     return className;
 }
 
-void exibir_interfaces (u2 *interfaces, int interfacesCount, cp_info *cp) {
+void interfaces_exibitor (u2 *interfaces, int interfacesCount, cp_info *cp) {
     if (interfacesCount != 0) {
         printf("Início Interfaces: \n \n");
         for (int i = 0; i < interfacesCount; i++) {
             printf("[0%d] - ", i);
-            printf("Class name: #%d %s \n", interfaces[i], class_decoder(cp, interfaces[i]));
+            printf("Class name: #%d <%s> \n", interfaces[i], class_decoder(cp, interfaces[i]));
         }
         printf("\nFim Interfaces \n \n");
     }
@@ -78,7 +94,7 @@ void exibir_interfaces (u2 *interfaces, int interfacesCount, cp_info *cp) {
 
 // exibir o cp_info
 // iremos precisar de um ponteiro para o classfile 
-void exibir_cp_info(ClassFile *classFile){
+void cp_info_exibitor(ClassFile *classFile){
     
     // pegar o contador de constant pool
     int cp_info_count = classFile->constant_pool_count;
@@ -262,11 +278,14 @@ void class_exibitor(ClassFile *cf) {
     printf("Attributes count: %d \n", cf->attributes_count);
 
     // Exibição constant pool
-    exibir_cp_info(cf);
+    cp_info_exibitor(cf);
 
-    
     // Exibição interfaces
-    exibir_interfaces(cf->interfaces, cf->interfaces_count, cf->constant_pool);
+    interfaces_exibitor(cf->interfaces, cf->interfaces_count, cf->constant_pool);
+
+
+
+    // exibição dos methods
     
 
 }
