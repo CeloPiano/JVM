@@ -4,6 +4,8 @@
 #include "exibidor.h"
 
 
+char * accFlag_decoder(u2);
+
 // print u1 em hexadecimal
 // void exibir_u1_hexa(u1 estrutura){
 //     printf("%x \n", estrutura);
@@ -32,16 +34,97 @@ char* Utf8_decoder(cp_info *cp_info_pointer){
 
 
 // ----------------------------- METHODS -------------------------------------
+void code_exibitor(attribute_info *attribute, ClassFile *cf){
+    
+    // printar THE CODE
+
+    
+    printf("\nMISC: \n\n");
+    printf("Maximum stack size: %d \n",attribute->attribute_info_union.code_attribute.max_stack);
+    printf("Maximum local variables: %d \n",attribute->attribute_info_union.code_attribute.max_locals);
+    printf("Maximum code length: %d \n",attribute->attribute_info_union.code_attribute.code_lenght);
+
+
+    
+
+    // vetor de code 
+    
+    
+
+};
+
+
+
+
+// ----------------------------- METHODS -------------------------------------
+
+void attributes_exibitor(attribute_info *attribute, ClassFile * cf){
+
+    // pegar o tamanho
+    u2 length = attribute->attribute_lenght;
+
+    // pegar o name index
+    u2 name_index = attribute->attribute_name_index;
+    
+    printf("Attribute name index: cp_info#%d <%s> \n", name_index, Utf8_decoder(&cf->constant_pool[name_index]));
+
+    printf("Attribute length:  %d\n", length);
+
+    char * name = Utf8_decoder(&cf->constant_pool[name_index]);
+
+
+    // usar o code length aqui não faz sentido porque não é pra printar um code para cada length.
+    // entramos na função e com base no bytecode vamos ter que tomar nossas decisões do que fazer
+
+    if(!strcmp(name, "Code")){
+        code_exibitor(attribute, cf);
+    };
+
+
+};
+
+
+
+
+
+
+
+
+// ----------------------------- METHODS -------------------------------------
 
 void methods_exibitor(ClassFile *cf){
 
-    u2 field_counts = cf->fields_count;
+    u2 methods_count = cf->methods_count;
 
-    // iterar em cada fields
-    for (int i = 0; i < field_counts; i++){
+    printf("Início Methods: \n \n");
+
+    // iterar em cada method
+    for (int i = 0; i < methods_count; i++){
+            
+        // pegar o method
+        method_info *method = &cf->methods[i]; 
+        
+        printf("Method[%d]\n", i);
+
+        //name
+        printf("Name: cp_info #%d <%s> \n", method->name_index, Utf8_decoder(&cf->constant_pool[method->name_index])); 
+
+        // discriptor 
+        printf("Descriptor: cp_info #%d <%s> \n", method->descriptor_index, Utf8_decoder(&cf->constant_pool[method->descriptor_index]));
+        
+        // acess flags
+        printf("Acess Flags: %x [%s] \n", method->acess_flags, accFlag_decoder(method->acess_flags));
+
+        // attributes
+        attributes_exibitor(method->attributes, cf);
+
+
+
+        printf("\n");
 
     };
 
+printf("Fim Methods \n \n");
 
 };
 
@@ -279,13 +362,15 @@ void class_exibitor(ClassFile *cf) {
 
     // Exibição constant pool
     cp_info_exibitor(cf);
-
+    
     // Exibição interfaces
     interfaces_exibitor(cf->interfaces, cf->interfaces_count, cf->constant_pool);
 
 
 
     // exibição dos methods
+    methods_exibitor(cf);
     
+
 
 }
