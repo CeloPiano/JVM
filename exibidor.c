@@ -3,7 +3,6 @@
 #include <string.h>
 #include "exibidor.h"
 
-
 char * accFlag_decoder(u2);
 
 // print u1 em hexadecimal
@@ -32,17 +31,33 @@ char* Utf8_decoder(cp_info *cp_info_pointer){
     return string;
 }
 
+// ----------------------------- FIELDS -------------------------------------
 
-// ----------------------------- METHODS -------------------------------------
+void fields_exibitor(ClassFile *cf) {
+    u2 fields_count = cf->fields_count;
+    printf("Início Fields\n\n");
+    for (int i = 0; i < fields_count; i++) {
+        field_info *field = &cf->fields[i];
+        cp_info *cp = cf->constant_pool;
+        printf("Field[%d]\n", i);
+        printf("Name: cp_info #%d %s\n", field->name_index, Utf8_decoder(&cp[field->name_index]));
+        printf("Descriptor: cp_info #%d <%s>\n", field->descriptor_index, Utf8_decoder(&cp[field->descriptor_index]));
+        printf("Access flags: 0x%x [%s]\n\n", field->acess_flags, accFlag_decoder(field->acess_flags));
+    }
+    printf("Fim Fields\n\n");
+}
+
+
+// ----------------------------- CODE -------------------------------------
 void code_exibitor(attribute_info *attribute, ClassFile *cf){
     
     // printar THE CODE
 
     
-    printf("\nMISC: \n\n");
-    printf("Maximum stack size: %d \n",attribute->attribute_info_union.code_attribute.max_stack);
-    printf("Maximum local variables: %d \n",attribute->attribute_info_union.code_attribute.max_locals);
-    printf("Maximum code length: %d \n",attribute->attribute_info_union.code_attribute.code_lenght);
+    printf("\n\tMISC: \n\n");
+    printf("\tMaximum stack size: %d \n",attribute->attribute_info_union.code_attribute.max_stack);
+    printf("\tMaximum local variables: %d \n",attribute->attribute_info_union.code_attribute.max_locals);
+    printf("\tMaximum code length: %d \n",attribute->attribute_info_union.code_attribute.code_lenght);
 
 
     
@@ -56,31 +71,30 @@ void code_exibitor(attribute_info *attribute, ClassFile *cf){
 
 
 
-// ----------------------------- METHODS -------------------------------------
+// ----------------------------- ATTRIBUTE -------------------------------------
 
-void attributes_exibitor(attribute_info *attribute, ClassFile * cf){
+void attributes_exibitor(attribute_info *attribute, u2 attributes_count, ClassFile * cf){
 
     // pegar o tamanho
     u2 length = attribute->attribute_lenght;
 
     // pegar o name index
     u2 name_index = attribute->attribute_name_index;
-    
-    printf("Attribute name index: cp_info#%d <%s> \n", name_index, Utf8_decoder(&cf->constant_pool[name_index]));
 
-    printf("Attribute length:  %d\n", length);
+    for (int i = 0; i < attributes_count; i++) {
+        printf("\tAttribute[%d]\n", i);
+        printf("\tAttribute name index: cp_info#%d <%s> \n", name_index, Utf8_decoder(&cf->constant_pool[name_index]));
+        printf("\tAttribute length:  %d\n", length);
 
-    char * name = Utf8_decoder(&cf->constant_pool[name_index]);
+        char * name = Utf8_decoder(&cf->constant_pool[name_index]);
+        // usar o code length aqui não faz sentido porque não é pra printar um code para cada length.
+        // entramos na função e com base no bytecode vamos ter que tomar nossas decisões do que fazer
+        if(!strcmp(name, "Code")){
+            code_exibitor(attribute, cf);
+        };
 
-
-    // usar o code length aqui não faz sentido porque não é pra printar um code para cada length.
-    // entramos na função e com base no bytecode vamos ter que tomar nossas decisões do que fazer
-
-    if(!strcmp(name, "Code")){
-        code_exibitor(attribute, cf);
-    };
-
-
+        printf("\n");
+    }
 };
 
 
@@ -113,24 +127,20 @@ void methods_exibitor(ClassFile *cf){
         printf("Descriptor: cp_info #%d <%s> \n", method->descriptor_index, Utf8_decoder(&cf->constant_pool[method->descriptor_index]));
         
         // acess flags
-        printf("Acess Flags: %x [%s] \n", method->acess_flags, accFlag_decoder(method->acess_flags));
+        printf("Acess Flags: 0x%x [%s] \n", method->acess_flags, accFlag_decoder(method->acess_flags));
 
         // attributes
-        attributes_exibitor(method->attributes, cf);
-
-
-
-        printf("\n");
+        attributes_exibitor(method->attributes, method->attributes_count, cf);
 
     };
 
-printf("Fim Methods \n \n");
+    printf("\nFim Methods \n \n");
 
 };
 
 
 char * accFlag_decoder(u2 accFlag) {
-    char *flagName = (char *) malloc(128 * sizeof(char));
+    char *flagName = (char *) malloc(64 * sizeof(char));
     if (accFlag & 0x0001) {
         strcat(flagName, "public ");
     }if (accFlag & 0x0002) {
@@ -155,6 +165,10 @@ char * accFlag_decoder(u2 accFlag) {
         strcat(flagName, "enum ");
     }
 
+    if (strlen(flagName) > 0) {
+        flagName[strlen(flagName) - 1] = '\0';
+    }
+
     return flagName;
 }
 
@@ -164,15 +178,15 @@ char *class_decoder(cp_info *cp, int classIndex) {
     return className;
 }
 
-void interfaces_exibitor (u2 *interfaces, int interfacesCount, cp_info *cp) {
-    if (interfacesCount != 0) {
-        printf("Início Interfaces: \n \n");
-        for (int i = 0; i < interfacesCount; i++) {
-            printf("[0%d] - ", i);
-            printf("Class name: #%d <%s> \n", interfaces[i], class_decoder(cp, interfaces[i]));
-        }
-        printf("\nFim Interfaces \n \n");
+void interfaces_exibitor (ClassFile *cf) {
+    u2 interfaces_count = cf->interfaces_count;
+    printf("Início Interfaces: \n \n");
+    for (int i = 0; i < interfaces_count; i++) {
+        u2 interface = cf->interfaces[i];
+        printf("Interface[%d]\n", i);
+        printf("Class name: cp_info #%d <%s> \n\n", interface, class_decoder(cf->constant_pool, interface));
     }
+    printf("\nFim Interfaces \n \n");
 }
 
 // exibir o cp_info
@@ -185,7 +199,7 @@ void cp_info_exibitor(ClassFile *classFile){
     // pegar o endereço do constant pool salvo e colocar no ponteiro constantPool.
     cp_info *constantPool = classFile->constant_pool;
     
-    printf("Início Constant Pool \n \n");
+    printf("\nInício Constant Pool \n \n");
 
     // iterar nos constant pools e ir printando com base em cada um de (1 até cp_count - 1) 
     for(int i = 1; i < cp_info_count; i++){
@@ -202,12 +216,17 @@ void cp_info_exibitor(ClassFile *classFile){
         // agora temos o restante que depende do tag, aplicar um SWITCH
         // para cada estrutura, agora temos que realizar os devidos prints
         switch(constantPool[i].tag){
-            
+
+            case(0) :
+                {
+                printf("(large numeric continued)\n\n");
+                }
+                break;
             case(CONSTANT_Class_info):
                 { 
-                    u2 class_name_index = constantPool[i].constant_type_union.Class_info.name_index;
-                    // aqui pegamos o index para acessar a constante utf_8 para a nossa função
-                    printf("Class name: cp_info #%d <%s>\n", class_name_index, Utf8_decoder(&constantPool[class_name_index]));
+                u2 class_name_index = constantPool[i].constant_type_union.Class_info.name_index;
+                // aqui pegamos o index para acessar a constante utf_8 para a nossa função
+                printf("Class name: cp_info #%d <%s>\n\n", class_name_index, Utf8_decoder(&constantPool[class_name_index]));
                 }
                 break;
 
@@ -228,7 +247,7 @@ void cp_info_exibitor(ClassFile *classFile){
                 printf("Name and type: cp_info #%d <%s : ",  fieldref_name_and_type_index, Utf8_decoder(&constantPool[constantPool[fieldref_name_and_type_index].constant_type_union.NameAndType.name_index]));
 
                 // descriptor
-                printf("%s>\n \n", Utf8_decoder(&constantPool[constantPool[fieldref_name_and_type_index].constant_type_union.NameAndType.descriptor_index]));
+                printf("%s>\n\n", Utf8_decoder(&constantPool[constantPool[fieldref_name_and_type_index].constant_type_union.NameAndType.descriptor_index]));
                 }
                 
                 break;
@@ -251,24 +270,28 @@ void cp_info_exibitor(ClassFile *classFile){
                 printf("Name and type: cp_info #%d <%s : ",  methodref_name_and_type_index, Utf8_decoder(&constantPool[constantPool[methodref_name_and_type_index].constant_type_union.NameAndType.name_index]));
 
                 // descriptor
-                printf("%s> \n \n", Utf8_decoder(&constantPool[constantPool[methodref_name_and_type_index].constant_type_union.NameAndType.descriptor_index]));
+                printf("%s> \n\n", Utf8_decoder(&constantPool[constantPool[methodref_name_and_type_index].constant_type_union.NameAndType.descriptor_index]));
                 
                 }
                 break;
                 
 
-            // case(CONSTANT_InterfaceMethodref_info): {
-            //     cp_info_pointer->constant_type_union.InterfaceMethodref_info.class_index = u2Read(fd);
-            //     cp_info_pointer->constant_type_union.InterfaceMethodref_info.name_and_type_index = u2Read(fd);
-            //     }
-            //     break;
+            case(CONSTANT_InterfaceMethodref_info): 
+                {
+                u2 interface_index = constantPool[i].constant_type_union.InterfaceMethodref_info.class_index;
+                u2 name_and_type_index = constantPool[i].constant_type_union.InterfaceMethodref_info.name_and_type_index;
+
+                printf("Interface name: cp_info #%d <%s>\n", interface_index, Utf8_decoder(&constantPool[interface_index]));
+                printf("Name and type: cp_info #%d <%s>\n\n", name_and_type_index, Utf8_decoder(&constantPool[name_and_type_index]));
+                }
+                break;
                 
             case(CONSTANT_String_info):
             {
 
                 u1 string_info_index = constantPool[i].constant_type_union.String.string_index;
 
-                printf("String: cp_info #%d <%s> \n \n", string_info_index ,Utf8_decoder(&constantPool[string_info_index]));
+                printf("String: cp_info #%d <%s> \n\n", string_info_index ,Utf8_decoder(&constantPool[string_info_index]));
 
             }
                 break;
@@ -278,12 +301,12 @@ void cp_info_exibitor(ClassFile *classFile){
             //     cp_info_pointer->constant_type_union.Float.bytes = u4Read(fd);
             //     break;
             
-            case(CONSTANT_Float_info):
-                {
+            // case(CONSTANT_Float_info):
+            //     {
 
             
-                }   
-                break;
+            //     }   
+            //     break;
 
             // case(CONSTANT_Long_info):
             //     // pular o indice? SIM
@@ -301,10 +324,13 @@ void cp_info_exibitor(ClassFile *classFile){
             //     cp_info_pointer->constant_type_union.Double.low_bytes = u4Read(fd);
             //     break;
             
-            // case(CONSTANT_NameAndType_info):
-            //     cp_info_pointer->constant_type_union.NameAndType.name_index = u2Read(fd);
-            //     cp_info_pointer->constant_type_union.NameAndType.descriptor_index = u2Read(fd);
-            //     break;
+            case(CONSTANT_NameAndType_info):
+                u2 name_index = constantPool[i].constant_type_union.NameAndType.name_index;
+                u2 descriptor_index = constantPool[i].constant_type_union.NameAndType.descriptor_index;
+
+                printf("Name: cp_info #%d %s \n", name_index, Utf8_decoder(&constantPool[name_index]));
+                printf("Descriptor: cp_info #%d %s\n\n", descriptor_index, Utf8_decoder(&constantPool[descriptor_index]));
+                break;
             
             case(CONSTANT_Utf8_info):
             {   
@@ -313,11 +339,12 @@ void cp_info_exibitor(ClassFile *classFile){
                 // lenght of string?
                 printf("lenght of string: %d \n", constantPool[i].constant_type_union.Utf8.length);
                 // String
-                printf("String: %s \n \n", Utf8_decoder(&constantPool[i]));
+                printf("String: %s \n\n", Utf8_decoder(&constantPool[i]));
             }   
                 break;
 
             default:
+                printf("\n");
                 break;
         };
     }
@@ -340,13 +367,13 @@ void class_exibitor(ClassFile *cf) {
     printf("Constant Pool Count: %d \n", cf->constant_pool_count);
 
     // Exibição access flags
-    printf("Access flags: %s \n", accFlag_decoder(cf->access_flags));
+    printf("Access flags: 0x%x [%s] \n", cf->access_flags, accFlag_decoder(cf->access_flags));
 
     // Exibição this class 
-    printf("This class: #%d %s \n", cf->this_class, class_decoder(cf->constant_pool, cf->this_class));
+    printf("This class: #%d <%s> \n", cf->this_class, class_decoder(cf->constant_pool, cf->this_class));
 
     // Exibição super class
-    printf("Super class: #%d %s \n", cf->super_class, class_decoder(cf->constant_pool, cf->super_class));
+    printf("Super class: #%d <%s> \n", cf->super_class, class_decoder(cf->constant_pool, cf->super_class));
 
     // Exibição interfaces count
     printf("Interfaces count: %d\n", cf->interfaces_count);
@@ -364,13 +391,17 @@ void class_exibitor(ClassFile *cf) {
     cp_info_exibitor(cf);
     
     // Exibição interfaces
-    interfaces_exibitor(cf->interfaces, cf->interfaces_count, cf->constant_pool);
+    interfaces_exibitor(cf);
 
+    // Exibição fields
+    fields_exibitor(cf);
 
-
-    // exibição dos methods
+    // Exibição methods
     methods_exibitor(cf);
     
-
+    // Exibição attributes
+    printf("Início attributes\n\n");
+    attributes_exibitor(cf->attributes, cf->attributes_count, cf);
+    printf("\nFim attributes\n\n");
 
 }
