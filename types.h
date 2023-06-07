@@ -15,7 +15,7 @@
 
 // definindo os tamanhos
 /// @brief Tipo u1 - 8bits
-typedef int8_t u1;
+typedef uint8_t u1;
 
 /// @brief Tipo u2 - 16bits
 typedef int16_t u2;
