@@ -33,6 +33,119 @@ char* Utf8_decoder(cp_info *cp_info_pointer){
     return string;
 }
 
+// ----------------------------- CONSTANTVALUE -------------------------------------
+
+void constantValue_exibitor(attribute_info *attribute, ClassFile *cf) {
+    u2 constantValue_index = attribute->attribute_info_union.constantvalue_index;
+    printf("\tConstant value index: cp_info #%d\n\n", constantValue_index);
+}
+
+
+// ----------------------------- CODE -------------------------------------
+void code_exibitor(attribute_info *attribute, ClassFile *cf){
+    
+    // MISC    
+    printf("\n\tMISC: \n\n");
+    printf("\tMaximum stack size: %d \n",attribute->attribute_info_union.code_attribute.max_stack);
+    printf("\tMaximum local variables: %d \n",attribute->attribute_info_union.code_attribute.max_locals);
+    printf("\tMaximum code length: %d \n\n",attribute->attribute_info_union.code_attribute.code_lenght);
+    printf("\tInicio Code: \n\n");
+
+    // code mnermonicos
+    
+    // iterar para cada byte
+    for(int i = 0; i < attribute->attribute_info_union.code_attribute.code_lenght; i++){
+        
+        u1 bytecode = attribute->attribute_info_union.code_attribute.code[i];
+        printf("\t%s - ", bytecode_to_opcode_string(bytecode));
+        printf("\tHEXA %x \n", bytecode);
+
+    };
+
+    printf("\n");
+
+    attributes_exibitor(attribute->attribute_info_union.code_attribute.attributes, attribute->attribute_info_union.code_attribute.attribute_count, cf);
+
+    printf("\tFim Code:\n");
+
+};
+
+// -------------------------- CODE GROUP ---------------------- 
+
+// -------------------------- OP NAME ---------------------- 
+
+// -------------------------- EXCEPTIONS ---------------------- 
+
+void exceptions_exibitor(attribute_info *attribute, ClassFile *cf) {
+
+}
+
+// -------------------------- INNERCLASSES ---------------------- 
+
+void innerClasses_exibitor(attribute_info *attribute, ClassFile *cf) {
+
+}
+
+// -------------------------- LINENUMBERTABLE ---------------------- 
+
+void lineNumberTable_exibitor(attribute_info *attribute, ClassFile *cf) {
+    u2 length = attribute->attribute_info_union.lineNumberTable_attribute.line_number_table_length;
+    for (int i = 0; i < length; i++) {
+        line_number_table *line_number_table = &attribute->attribute_info_union.lineNumberTable_attribute.line_number_table[i];
+        printf("\tNúmero %d - Start PC %d - Line Number %d\n", i, line_number_table->start_pc, line_number_table->line_number);
+    }
+}
+// -------------------------- LOCALVARIABLETABLE ---------------------- 
+
+void localVariableTable_exibitor(attribute_info *attribute, ClassFile *cf) {
+
+}
+
+
+// ----------------------------- ATTRIBUTES -------------------------------------
+
+void attributes_exibitor(attribute_info *attributes, u2 attributes_count, ClassFile * cf){
+    for (int i = 0; i < attributes_count; i++) {
+        attribute_info *attr = &attributes[i];
+        u2 length = attr->attribute_lenght;
+        u2 name_index = attr->attribute_name_index;
+        printf("\tAttribute[%d]\n", i);
+        printf("\tAttribute name index: cp_info#%d <%s> \n", name_index, Utf8_decoder(&cf->constant_pool[name_index]));
+        printf("\tAttribute length:  %d\n", length);
+
+        char * name = Utf8_decoder(&cf->constant_pool[name_index]);
+        // usar o code length aqui não faz sentido porque não é pra printar um code para cada length.
+        // entramos na função e com base no bytecode vamos ter que tomar nossas decisões do que fazer
+        if (!strcmp(name, "ConstantValue"))
+        {
+            constantValue_exibitor(attr, cf);
+        }
+        else if (!strcmp(name, "Code"))
+        {
+            code_exibitor(attr, cf);
+        }
+        else if (!strcmp(name, "Exceptions"))
+        {
+            innerClasses_exibitor(attr, cf);
+        }
+        else if (!strcmp(name, "InnerClasses"))
+        {
+            innerClasses_exibitor(attr, cf);
+        }
+        else if (!strcmp(name, "LineNumberTable"))
+        {
+            lineNumberTable_exibitor(attr, cf);
+        }
+        else if (!strcmp(name, "LocalVariableTable"))
+        {
+            localVariableTable_exibitor(attr, cf);
+        }
+
+
+        printf("\n");
+    }
+};
+
 // ----------------------------- FIELDS -------------------------------------
 
 void fields_exibitor(ClassFile *cf) {
@@ -45,86 +158,10 @@ void fields_exibitor(ClassFile *cf) {
         printf("Name: cp_info #%d %s\n", field->name_index, Utf8_decoder(&cp[field->name_index]));
         printf("Descriptor: cp_info #%d <%s>\n", field->descriptor_index, Utf8_decoder(&cp[field->descriptor_index]));
         printf("Access flags: 0x%x [%s]\n\n", field->acess_flags, accFlag_decoder(field->acess_flags));
+        attributes_exibitor(field->attributes, field->attributes_count, cf);
     }
     printf("Fim Fields\n\n");
 }
-
-
-// ----------------------------- CODE -------------------------------------
-void code_exibitor(attribute_info *attribute, ClassFile *cf){
-    
-    // MISC    
-    printf("\n\tMISC: \n\n");
-    printf("\tMaximum stack size: %d \n",attribute->attribute_info_union.code_attribute.max_stack);
-    printf("\tMaximum local variables: %d \n",attribute->attribute_info_union.code_attribute.max_locals);
-    printf("\tMaximum code length: %d \n",attribute->attribute_info_union.code_attribute.code_lenght);
-
-
-    
-
-
-    printf("\t Inicio Code: \n");
-
-    // code mnermonicos
-    
-    // iterar para cada byte
-    for(int i = 0; i < attribute->attribute_info_union.code_attribute.code_lenght; i++){
-        
-        u1 bytecode = attribute->attribute_info_union.code_attribute.code[i];
-        printf("%s - ", bytecode_to_opcode_string(bytecode));
-        printf("HEXA %x \n", bytecode);
-
-    };
-
-    printf("\t Fim Code: \n");
-
-
-
-};
-
-
-// -------------------------- CODE GROUP ---------------------- 
-
-
-
-
-// -------------------------- OP NAME  ---------------------- 
-
-
-
-
-// ----------------------------- ATTRIBUTE -------------------------------------
-
-void attributes_exibitor(attribute_info *attribute, u2 attributes_count, ClassFile * cf){
-
-    // pegar o tamanho
-    u2 length = attribute->attribute_lenght;
-
-    // pegar o name index
-    u2 name_index = attribute->attribute_name_index;
-
-    for (int i = 0; i < attributes_count; i++) {
-        printf("\tAttribute[%d]\n", i);
-        printf("\tAttribute name index: cp_info#%d <%s> \n", name_index, Utf8_decoder(&cf->constant_pool[name_index]));
-        printf("\tAttribute length:  %d\n", length);
-
-        char * name = Utf8_decoder(&cf->constant_pool[name_index]);
-        // usar o code length aqui não faz sentido porque não é pra printar um code para cada length.
-        // entramos na função e com base no bytecode vamos ter que tomar nossas decisões do que fazer
-        if(!strcmp(name, "Code")){
-            code_exibitor(attribute, cf);
-        };
-
-        printf("\n");
-    }
-};
-
-
-
-
-
-
-
 
 // ----------------------------- METHODS -------------------------------------
 
@@ -149,7 +186,7 @@ void methods_exibitor(ClassFile *cf){
         printf("Descriptor: cp_info #%d <%s> \n", method->descriptor_index, Utf8_decoder(&cf->constant_pool[method->descriptor_index]));
         
         // acess flags
-        printf("Acess Flags: 0x%x [%s] \n", method->acess_flags, accFlag_decoder(method->acess_flags));
+        printf("Acess Flags: 0x%x [%s] \n\n", method->acess_flags, accFlag_decoder(method->acess_flags));
 
         // attributes
         attributes_exibitor(method->attributes, method->attributes_count, cf);

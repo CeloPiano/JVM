@@ -22,7 +22,7 @@ char* Utf8_decoder(cp_info * cp_info_pointer);
 /// @param classFile Ponteiro que aponta para o classfile em questão
 void cp_info_exibitor(ClassFile *classFile);
 
-
+void attributes_exibitor(attribute_info *attributes, u2 attributes_count, ClassFile * cf);
 
 /// @brief Enum que une o valor do upcode ao opcode
 typedef enum value_to_opcode

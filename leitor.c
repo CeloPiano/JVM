@@ -98,7 +98,7 @@ void read_attribute_code(FILE *fd, attribute_info *attr_info, cp_info *cp)
     // alocando espaço para os attributes
     attr_info->attribute_info_union.code_attribute.attributes = (attribute_info *) malloc(attr_info->attribute_info_union.code_attribute.attribute_count * sizeof(attribute_info));
 
-    read_attribute(fd, attr_info->attribute_info_union.code_attribute.attributes, attr_info->attribute_info_union.code_attribute.attribute_count, cp);
+    read_attributes(fd, attr_info->attribute_info_union.code_attribute.attributes, attr_info->attribute_info_union.code_attribute.attribute_count, cp);
 }
 
 // ----------------- ATTRIBUTE EXCEPTIONS -------------------------------- //
@@ -160,9 +160,8 @@ void read_attribute_localVariableTable(FILE *fd, attribute_info *attr_info)
 }
 
 // aqui já passamos o attribute info em questão
-void read_attribute(FILE *fd, attribute_info *attr_info, u2 attr_count, cp_info *cp)
+void read_attributes(FILE *fd, attribute_info *attr_info, u2 attr_count, cp_info *cp)
 {
-
     for (int i = 0; i < attr_count; i++)
     {
         // printf("index read_attribute = %d \n", i);
@@ -209,8 +208,7 @@ void read_attribute(FILE *fd, attribute_info *attr_info, u2 attr_count, cp_info 
         else if (!strcmp(attribute_name, "LocalVariableTable"))
         {
             read_attribute_localVariableTable(fd, attr);
-        }
-        else
+        } else
         {
             for (int byte = 0; byte < attr_info[i].attribute_lenght; byte++)
             {
@@ -245,7 +243,7 @@ void read_methods(FILE *fd, ClassFile *cf)
 
         // lendo os attributes
         if(cf->methods[i].attributes_count){
-            read_attribute(fd, cf->methods[i].attributes, cf->methods[i].attributes_count, cf->constant_pool);
+            read_attributes(fd, cf->methods[i].attributes, cf->methods[i].attributes_count, cf->constant_pool);
         };
     };
 };
@@ -282,7 +280,7 @@ void read_fields(FILE *fd, ClassFile *cf)
 
         // lendo field attributes
         if (cf->fields[i].attributes_count){
-            read_attribute(fd, cf->fields[i].attributes, cf->fields[i].attributes_count, cf->constant_pool);
+            read_attributes(fd, cf->fields[i].attributes, cf->fields[i].attributes_count, cf->constant_pool);
         }
     };
 };
@@ -477,10 +475,6 @@ void class_reader(FILE *fd, ClassFile *cf)
 
     // lendo os Attributes
     
-    if(cf->attributes_count){
-        for (int i = 0; i < cf->attributes_count; i++){
-            read_attribute(fd, &cf->attributes[i], cf->attributes_count, cf->constant_pool);
-        };
-    };
+    read_attributes(fd, cf->attributes, cf->attributes_count, cf->constant_pool);
 
 };

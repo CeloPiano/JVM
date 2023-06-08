@@ -18,13 +18,13 @@
 typedef uint8_t u1;
 
 /// @brief Tipo u2 - 16bits
-typedef int16_t u2;
+typedef uint16_t u2;
 
 /// @brief Tipo u4 - 32bits
-typedef int32_t u4;
+typedef uint32_t u4;
 
 /// @brief Tipo u8 - 64bits
-typedef int64_t u8;
+typedef uint64_t u8;
 
 // referenciando o attribute
 struct attribute_info;

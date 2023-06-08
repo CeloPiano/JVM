@@ -45,7 +45,7 @@ void read_exception_table(FILE *fd, exception_table *exception_table, u2 excepti
 /// @param attr_info Ponteiro para a lista de attributos
 /// @param attr_count Quantidade de attributos
 /// @param cp Ponteiro para o Constant Pool
-void read_attribute(FILE *,attribute_info *, u2 ,cp_info *);
+void read_attributes(FILE *,attribute_info *, u2 ,cp_info *);
 
 /// @brief Funçao que le o arquivo 
 /// @param fd Ponteiro para Byte do arquivo .Class lido
