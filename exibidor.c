@@ -383,12 +383,14 @@ void cp_info_exibitor(ClassFile *classFile){
             //     cp_info_pointer->constant_type_union.Double.low_bytes = u4Read(fd);
             //     break;
             
-            case(CONSTANT_NameAndType_info):
+            case(CONSTANT_NameAndType_info):{
+
                 u2 name_index = constantPool[i].constant_type_union.NameAndType.name_index;
                 u2 descriptor_index = constantPool[i].constant_type_union.NameAndType.descriptor_index;
 
                 printf("Name: cp_info #%d %s \n", name_index, Utf8_decoder(&constantPool[name_index]));
                 printf("Descriptor: cp_info #%d %s\n\n", descriptor_index, Utf8_decoder(&constantPool[descriptor_index]));
+            }
                 break;
             
             case(CONSTANT_Utf8_info):
