@@ -57,8 +57,8 @@ void code_exibitor(attribute_info *attribute, ClassFile *cf){
     for(int i = 0; i < attribute->attribute_info_union.code_attribute.code_lenght; i++){
         
         u1 bytecode = attribute->attribute_info_union.code_attribute.code[i];
-        printf("\t%s - ", bytecode_to_opcode_string(bytecode));
-        printf("\tHEXA %x \n", bytecode);
+        printf("\t%d %s   ",i , bytecode_to_opcode_string(bytecode));
+        printf("HEXA %x \n", bytecode);
 
     };
 
