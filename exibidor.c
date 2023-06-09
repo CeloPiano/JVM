@@ -5,7 +5,8 @@
 
 char * accFlag_decoder(u2);
 const char* bytecode_to_opcode_string(value_to_opcode);
-
+int bytecode_group(u1);
+void bytecode_print( u1*, int *, int, cp_info *);
 
 // print u1 em hexadecimal
 // void exibir_u1_hexa(u1 estrutura){
@@ -51,28 +52,40 @@ void code_exibitor(attribute_info *attribute, ClassFile *cf){
     printf("\tMaximum code length: %d \n\n",attribute->attribute_info_union.code_attribute.code_lenght);
     printf("\tInicio Code: \n\n");
 
-    // code mnermonicos
+    // code mnermonicos!
     
     // iterar para cada byte
     for(int i = 0; i < attribute->attribute_info_union.code_attribute.code_lenght; i++){
         
         u1 bytecode = attribute->attribute_info_union.code_attribute.code[i];
-        printf("\t%d %s   ",i , bytecode_to_opcode_string(bytecode));
-        printf("HEXA %x \n", bytecode);
+        // printf("\t%d %s   ",i , bytecode_to_opcode_string(bytecode));
+        // printf("HEXA %x \n", bytecode);
+        
+        // pegar o grupo
+        int group = bytecode_group(bytecode);
+
+        printf("esse é o grupo %d \n", group);
+        
+        // printar com base no grupo
+        bytecode_print(attribute->attribute_info_union.code_attribute.code, &i, group, cf->constant_pool);
 
     };
 
+    
     printf("\n");
 
+
+    printf("\tInicio code Attributes:\n");
+
     attributes_exibitor(attribute->attribute_info_union.code_attribute.attributes, attribute->attribute_info_union.code_attribute.attribute_count, cf);
+
+    printf("\tFim code Attributes\n");
 
     printf("\tFim Code:\n");
 
 };
 
-// -------------------------- CODE GROUP ---------------------- 
 
-// -------------------------- OP NAME ---------------------- 
 
 // -------------------------- EXCEPTIONS ---------------------- 
 
@@ -158,7 +171,12 @@ void fields_exibitor(ClassFile *cf) {
         printf("Name: cp_info #%d %s\n", field->name_index, Utf8_decoder(&cp[field->name_index]));
         printf("Descriptor: cp_info #%d <%s>\n", field->descriptor_index, Utf8_decoder(&cp[field->descriptor_index]));
         printf("Access flags: 0x%x [%s]\n\n", field->acess_flags, accFlag_decoder(field->acess_flags));
+
+        printf("Inicio Fields Attributes:\n\n");
+        
         attributes_exibitor(field->attributes, field->attributes_count, cf);
+        
+        printf("Fim Fields Attributes\n\n");
     }
     printf("Fim Fields\n\n");
 }
@@ -188,9 +206,13 @@ void methods_exibitor(ClassFile *cf){
         // acess flags
         printf("Acess Flags: 0x%x [%s] \n\n", method->acess_flags, accFlag_decoder(method->acess_flags));
 
+
+        printf("Inicio Method Attributes: \n\n");
+
         // attributes
         attributes_exibitor(method->attributes, method->attributes_count, cf);
 
+        printf("Fim Method Attributes \n\n");
     };
 
     printf("\nFim Methods \n \n");
@@ -468,6 +490,7 @@ void class_exibitor(ClassFile *cf) {
 }
 
 
+// -------------------------- CODE NAME ---------------------- 
 // função que pega o nome baseado no opcode.
 const char* bytecode_to_opcode_string(value_to_opcode op)
 {
@@ -714,3 +737,75 @@ const char* bytecode_to_opcode_string(value_to_opcode op)
 
     return "Unknown op";
 }
+
+// -------------------------- CODE GROUP ---------------------- 
+int bytecode_group(u1 bytecode){
+
+
+    switch(bytecode){
+
+        // começando pelas de index number
+        case aload:
+        case astore:
+        case dload:
+        case dstore:
+        case fload:
+        case fstore:
+        case iload:
+        case istore:
+        case lload:
+        case lstore:
+        case ret: return 1;
+
+        // index pool
+        case ldc: return 11;
+
+        default:
+            return 0;
+    }
+
+
+};
+
+
+// -------------------------- GROUP PRINT ---------------------- 
+// baseado nos grupos iremos printar os codes
+void bytecode_print( u1* code_array, int *index, int bytecode_group, cp_info *constant_pool){
+    
+    switch(bytecode_group){
+
+        // 1 byte:
+        
+        // index number group (1):
+        case(1):
+            // printando bytecode
+            printf("%s ", bytecode_to_opcode_string(code_array[*index]));
+            
+            ++(*index);
+            
+            // printando o número
+            printf("%d \n", code_array[*index]);
+
+
+        // index cp_info group (1.1):
+        case(11):
+            // printando
+            printf("%s ", bytecode_to_opcode_string(code_array[*index]));
+
+            ++(*index);
+
+            int pool_index = *index;
+            // printando o cp_info
+            // aqui o pool_index aponta -> CONSTANT_String_info
+            printf("#%d %s\n", pool_index, Utf8_decoder(&constant_pool[constant_pool[pool_index].constant_type_union.String.string_index]));
+
+
+        // noarguments group 
+        case(0):
+            printf("%s \n", bytecode_to_opcode_string(code_array[*index]));
+
+    };
+
+
+};
+
