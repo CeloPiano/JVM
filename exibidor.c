@@ -107,21 +107,24 @@ void code_exibitor(attribute_info *attribute, ClassFile *cf){
     // code mnermonicos!
     
     // iterar para cada byte
-    // for(int i = 0; i < attribute->attribute_info_union.code_attribute.code_lenght; i++){
+    for(int i = 0; i < attribute->attribute_info_union.code_attribute.code_lenght; i++){
         
-    //     u1 bytecode = attribute->attribute_info_union.code_attribute.code[i];
-    //     // printf("\t%d %s   ",i , bytecode_to_opcode_string(bytecode));
-    //     // printf("HEXA %x \n", bytecode);
+        // printf("\t%d %s   ",i , bytecode_to_opcode_string(bytecode));
+        // printf("HEXA %x \n", bytecode);
         
-    //     // pegar o grupo
-    //     int group = bytecode_group(bytecode);
 
-    //     printf("esse é o grupo %d \n", group);
+        //bytecode em questão 
+        u1 bytecode = attribute->attribute_info_union.code_attribute.code[i];
         
-    //     // printar com base no grupo
-    //     bytecode_print(attribute->attribute_info_union.code_attribute.code, &i, group, cf->constant_pool);
+        // pegar o grupo
+        int group = bytecode_group(bytecode);
 
-    // };
+        printf("esse é o grupo %d \n", group);
+        
+        // printar com base no grupo
+        bytecode_print(attribute->attribute_info_union.code_attribute.code, &i, group, cf->constant_pool);
+
+    };
     
     printf("\n");
 
@@ -360,9 +363,9 @@ void cp_info_exibitor(ClassFile *classFile){
         switch(constantPool[i].tag){
 
             case(0) :
-                {
-                printf("(large numeric continued)\n\n");
-                }
+                // {
+                // printf("(large numeric continued)\n\n");
+                // }
                 break;
             case(CONSTANT_Class_info):
                 { 
@@ -423,8 +426,12 @@ void cp_info_exibitor(ClassFile *classFile){
                 u2 interface_index = constantPool[i].constant_type_union.InterfaceMethodref_info.class_index;
                 u2 name_and_type_index = constantPool[i].constant_type_union.InterfaceMethodref_info.name_and_type_index;
 
-                printf("Interface name: cp_info #%d <%s>\n", interface_index, Utf8_decoder(&constantPool[interface_index]));
-                printf("Name and type: cp_info #%d <%s>\n\n", name_and_type_index, Utf8_decoder(&constantPool[name_and_type_index]));
+                u2 utf8_interface_index = constantPool[interface_index].constant_type_union.Class_info.name_index;
+                u2 utf8_name_and_type_index_name = constantPool[name_and_type_index].constant_type_union.NameAndType.name_index;
+                u2 utf8_name_and_type_index_descriptor = constantPool[name_and_type_index].constant_type_union.NameAndType.descriptor_index;
+
+                printf("Interface name: cp_info #%d <%s>\n", interface_index, Utf8_decoder(&constantPool[utf8_interface_index]));
+                printf("Name and type: cp_info #%d <%s %s>\n\n", name_and_type_index, Utf8_decoder(&constantPool[utf8_name_and_type_index_name]), Utf8_decoder(&constantPool[utf8_name_and_type_index_descriptor]));
                 }
                 break;
                 
@@ -806,7 +813,7 @@ int bytecode_group(u1 bytecode){
 
     switch(bytecode){
 
-        // começando pelas de index number
+        // começando pelas de index number - 1 byte
         case aload:
         case astore:
         case dload:
@@ -819,7 +826,7 @@ int bytecode_group(u1 bytecode){
         case lstore:
         case ret: return 1;
 
-        // index pool
+        // index pool - 1 byte
         case ldc: return 11;
 
         default:
@@ -846,7 +853,11 @@ void bytecode_print( u1* code_array, int *index, int bytecode_group, cp_info *co
             ++(*index);
             
             // printando o número
-            printf("%d \n", code_array[*index]);
+            printf("%d \n", *index);
+
+
+
+
 
 
         // index cp_info group (1.1):
