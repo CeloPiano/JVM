@@ -64,7 +64,17 @@ public class zoo implements control{
     // ambas vão para a constant pool
     static final int numero_favorito = 20;
     final int ano_nascimento = 1923;
+    final long teste_long = 18;
+    final char teste_char = 'a';
+    final boolean teste_bool = true;
+    final float teste_float = 1.5f;
+    final double teste_double = 50.89;
+    final String teste_string = "teste";
     static int numero_favorito_mae = 20;
+
+    public void teste() throws Exception {
+        int local = 0;
+    }
 
 
     public static void main(String[] args){
