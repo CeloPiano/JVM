@@ -37,7 +37,7 @@ static u8 u8Read(FILE * fd);
 /// @param fd Ponteiro para Byte do arquivo .Class lido
 /// @param exception_table ponteiro para tabela de excessoes
 /// @param exception_table_lenght tamanho da tabela
-void read_attribute_code_exception_table(FILE *, exception_table *, u2)
+void read_attribute_code_exception_table(FILE *fd, exception_table * exception_table, u2 exception_table_lenght);
 
 /// @brief Funçao que le a exception table 
 /// @param fd Ponteiro para Byte do arquivo .Class lido

@@ -103,32 +103,40 @@ void code_exibitor(attribute_info *attribute, ClassFile *cf){
     printf("\tMaximum stack size: %d \n",attribute->attribute_info_union.code_attribute.max_stack);
     printf("\tMaximum local variables: %d \n",attribute->attribute_info_union.code_attribute.max_locals);
     printf("\tMaximum code length: %d \n\n",attribute->attribute_info_union.code_attribute.code_lenght);
+    
 
+    printf("\tBytecodes: \n\n");
     // code mnermonicos!
     int line = 1;
     // iterar para cada byte
     for(int i = 0; i < attribute->attribute_info_union.code_attribute.code_lenght; i++){
-        printf("%d | %d ", line, i);
+        printf("\t%d | %d ", line, i);
 
         // printf("\t%d %s   ",i , bytecode_to_opcode_string(bytecode));
         // printf("HEXA %x \n", bytecode);
         
 
-    //     //bytecode em questão 
+        //bytecode em questão 
         u1 bytecode = attribute->attribute_info_union.code_attribute.code[i];
         
-    //     // pegar o grupo
+        // pegar o grupo
         int group = bytecode_group(bytecode);
 
         printf("- grupo %d - ", group);
         
+        // se for lookupswitch break e print instrução não implementada
+        if(bytecode == lookupswitch){
+            printf("Instrução não implementada!\n");
+            break;
+        };
+
         // printar com base no grupo
         bytecode_print(attribute->attribute_info_union.code_attribute.code, &i, group, cf->constant_pool);
         
         line++;
     };
     
-    // printf("\n");
+    printf("\n");
 
     attributes_exibitor(attribute->attribute_info_union.code_attribute.attributes, attribute->attribute_info_union.code_attribute.attribute_count, cf, 2);
 
@@ -156,14 +164,14 @@ void exceptions_exibitor(attribute_info *attribute, ClassFile *cf) {
 void innerClasses_exibitor(attribute_info *attribute, ClassFile *cf) {
     u2 length = attribute->attribute_info_union.innerClasses_attribute.number_of_classes;
     cp_info *cp = cf->constant_pool;
-    printf("Specific info:\n");
+    printf("Specific info:\n\n");
     
     for (int i = 0; i < length; i++) {
         inner_classes *inner_class = &attribute->attribute_info_union.innerClasses_attribute.inner_classes[i];
-        printf("Número: %d - Inner Class: cp_info #%d <%s> - Outer Class: cp_info #%d <%s> - Inner Name: cp_info #%d <%s> - Access Flags: 0x%x [%s]\n", i, inner_class->inner_class_info_index, class_decoder(cp, inner_class->inner_class_info_index), inner_class->outer_class_info_index, class_decoder(cp, inner_class->outer_class_info_index), inner_class->inner_name_index, Utf8_decoder(&cp[inner_class->inner_name_index]), inner_class->inner_class_access_flags, accFlag_decoder(inner_class->inner_class_access_flags));
+        printf("Número: %d - Inner Class: cp_info #%d <%s> - Outer Class: cp_info #%d <%s> - Inner Name: cp_info #%d <%s> - Access Flags: 0x%x [%s]\n\n", i, inner_class->inner_class_info_index, class_decoder(cp, inner_class->inner_class_info_index), inner_class->outer_class_info_index, class_decoder(cp, inner_class->outer_class_info_index), inner_class->inner_name_index, Utf8_decoder(&cp[inner_class->inner_name_index]), inner_class->inner_class_access_flags, accFlag_decoder(inner_class->inner_class_access_flags));
     }
 
-    printf("\n");
+    // printf("\n");
 }
 
 // -------------------------- LINENUMBERTABLE ---------------------- 
@@ -225,7 +233,7 @@ void attributes_exibitor(attribute_info *attributes, u2 attributes_count, ClassF
         // usar o code length aqui não faz sentido porque não é pra printar um code para cada length.
         // entramos na função e com base no bytecode vamos ter que tomar nossas decisões do que fazer
         if (!strcmp(name, "ConstantValue"))
-        {
+        {   
             constantValue_exibitor(attr, cf);
         }
         else if (!strcmp(name, "Code"))
@@ -940,6 +948,9 @@ int bytecode_group(u1 bytecode){
         case lookupswitch:
         return 101;
 
+        case wide:
+        return 102;
+
         default:
             return 0;
     }
@@ -1004,11 +1015,34 @@ void bytecode_print( u1* code_array, int *index, int bytecode_group, cp_info *co
         case(11):{
 
             // printando
-            printf("%s \n", bytecode_to_opcode_string(code_array[*index]));
+            printf("%s ", bytecode_to_opcode_string(code_array[*index]));
 
             ++(*index);
 
-            int pool_index = *index;
+            int pool_index = code_array[*index];
+
+            // pegar a tag fazer os casos
+            // String, int, float, Class
+            int tag = constant_pool[pool_index].tag;
+            // printf("pool_index %d \n", pool_index);        
+            // printf("tag %d \n", tag);        
+
+            if(tag == CONSTANT_String_info){
+                printf("#%d %s \n", pool_index, Utf8_decoder(&constant_pool[constant_pool[pool_index].constant_type_union.String.string_index]));
+            }
+            else if(tag == CONSTANT_Integer_info){
+                printf("#%d %d\n", pool_index, constant_pool[pool_index].constant_type_union.Integer.bytes);
+            }
+            else if(tag == CONSTANT_Float_info){
+                printf("#%d %f\n", pool_index, float_decoder(constant_pool[pool_index].constant_type_union.Integer.bytes));
+            }
+            else if(tag == CONSTANT_Class_info){
+                printf("#%d <%s>\n", pool_index, Utf8_decoder(&constant_pool[constant_pool[pool_index].constant_type_union.Class_info.name_index]));
+            }
+            else{
+                printf("\n");
+            };
+            
             // printando o cp_info
             // aqui o pool_index aponta -> CONSTANT_String_info
             // printf("#%d %s\n", pool_index, Utf8_decoder(&constant_pool[constant_pool[pool_index].constant_type_union.String.string_index]));
@@ -1075,8 +1109,43 @@ void bytecode_print( u1* code_array, int *index, int bytecode_group, cp_info *co
             else if(!strcmp(bytecode_to_opcode_string(bytecode), "invokespecial") | !strcmp(bytecode_to_opcode_string(bytecode), "invokestatic") | !strcmp(bytecode_to_opcode_string(bytecode), "invokevirtual")){
                  printf("#%d <%s : %s>\n", cp_index, Utf8_decoder(&constant_pool[constant_pool[constant_pool[cp_index].constant_type_union.Methodref_info.class_index].constant_type_union.Class_info.name_index]),Utf8_decoder(&constant_pool[constant_pool[constant_pool[cp_index].constant_type_union.Methodref_info.name_and_type_index].constant_type_union.NameAndType.descriptor_index]));
                 // printf("#%d <%s : >\n", cp_index, Utf8_decoder(&constant_pool[constant_pool[constant_pool[cp_index].constant_type_union.Methodref_info.class_index].constant_type_union.Class_info.name_index]));
-            };
+            }
+            else if(!strcmp(bytecode_to_opcode_string(bytecode), "ldc_w")){
 
+                int tag = constant_pool[cp_index].tag;
+
+                if(tag == CONSTANT_String_info){
+                    printf("#%d %s \n", cp_index, Utf8_decoder(&constant_pool[constant_pool[cp_index].constant_type_union.String.string_index]));
+                }
+                else if(tag == CONSTANT_Integer_info){
+                    printf("#%d %d\n", cp_index, constant_pool[cp_index].constant_type_union.Integer.bytes);
+                }
+                else if(tag == CONSTANT_Float_info){
+                    printf("#%d %f\n", cp_index, float_decoder(constant_pool[cp_index].constant_type_union.Integer.bytes));
+                }
+                else if(tag == CONSTANT_Class_info){
+                    printf("#%d <%s>\n", cp_index, Utf8_decoder(&constant_pool[constant_pool[cp_index].constant_type_union.Class_info.name_index]));
+                }
+                else{
+                    printf("\n");
+                };
+            }
+            else if(!strcmp(bytecode_to_opcode_string(bytecode), "ldc2_w")){
+                // double, long
+
+                int tag = constant_pool[cp_index].tag;
+
+                if(tag == CONSTANT_Double_info){
+                    printf("#%d %lf", cp_index, double_decoder(constant_pool[cp_index].constant_type_union.Double.high_bytes,constant_pool[cp_index].constant_type_union.Double.low_bytes));
+                }
+                else if(tag == CONSTANT_Long_info){
+                    printf("#%d %lld", cp_index, long_decoder(constant_pool[cp_index].constant_type_union.Long.high_bytes,constant_pool[cp_index].constant_type_union.Long.low_bytes));
+                }
+                else{
+                    printf("\n");
+                }
+
+            };
         } 
         break;
 
@@ -1246,73 +1315,170 @@ void bytecode_print( u1* code_array, int *index, int bytecode_group, cp_info *co
 
         // tableswitch 
         case(100):{
-            
+        
+        int start_position = *index;
+
         int bytecode = code_array[*index];
         printf("%s \n", bytecode_to_opcode_string(bytecode));
+        // ++(*index);
+        // printf("inside index %d = %d\n ",*index, code_array[*index]);
         
-        ++(*index);
-        int padding = *(index) % 4;
-        for(int i=0; i< padding;i++){
+        // pular o padding
+        // int padding = *(index) % 4;
+
+        int fator; 
+        if(*index < 4){
+            fator = 4 - *index;
+        }
+        else if(*index > 4){
+            fator = *(index) % 4;
+        }
+        else if(*index == 4){
+            fator = 1;
+        };
+        for(int i=0; i < fator;i++){
+            // printf("inside index %d = %d\n ",*index, code_array[*index]);
             ++(*index);
         }
-
-        ++(*index);
-        ++(*index);
-        ++(*index);
-        ++(*index);
-        ++(*index);
-        ++(*index);
-        ++(*index);
-        ++(*index);
-        ++(*index);
-        ++(*index);
-        ++(*index);
-        ++(*index);
+        // printf("inside index %d = %d\n ",*index, code_array[*index]);
         
+
+        // printf("inside index %d = %d\n ",*index, code_array[*index]);
+
+
+
+        // after the tableswitch opcode, 
+        // between zero and three bytes must act as padding, such that defaultbyte1 begins at an address that is a multiple of four bytes from the start of the current method (the opcode of its first instruction).
+        // levar em conta o padding e pegar o inicio da instrução 
+        int start_index = ((3 - (*index % 4)) + *index);
+        
+        // defaultbyte1, defaultbyte2, defaultbyte3, defaultbyte4, lowbyte1, lowbyte2, lowbyte3, lowbyte4, highbyte1, highbyte2, highbyte3, highbyte4
+        int defaultbyte1 = code_array[*index];
+        ++(*index); 
+        int defaultbyte2 = code_array[*index];
+        ++(*index); 
+        int defaultbyte3 = code_array[*index];
+        ++(*index); 
+        int defaultbyte4 = code_array[*index];
+        ++(*index); 
+
+        int lowbyte1 = code_array[*index];
+        ++(*index); 
+        int lowbyte2 = code_array[*index];
+        ++(*index); 
+        int lowbyte3 = code_array[*index];
+        ++(*index); 
+        int lowbyte4 = code_array[*index];
+        ++(*index); 
+
+        int highbyte1 = code_array[*index];
+        ++(*index); 
+        int highbyte2 = code_array[*index];
+        ++(*index); 
+        int highbyte3 = code_array[*index];
+        ++(*index); 
+        int highbyte4 = code_array[*index];
+        ++(*index); 
+
+        int32_t default_bytes =  defaultbyte1 << 24 | defaultbyte2 << 16 | defaultbyte3 << 8 | defaultbyte4; 
+        int32_t low_bytes =  lowbyte1 << 24 | lowbyte2 << 16 | lowbyte3 << 8 | lowbyte4; 
+        int32_t high_bytes =  highbyte1 << 24 | highbyte2 << 16 | highbyte3 << 8 | highbyte4;
+
+        // printf("\t%d to %d\n", low_bytes, high_bytes);
+
+        // iterar entre tamanho de high_bytes 
+        for (int i = 0; i < high_bytes; i++){
+            
+            int byte1 = code_array[*index];
+            ++(*index); 
+            int byte2 = code_array[*index];
+            ++(*index); 
+            int byte3 = code_array[*index];
+            ++(*index); 
+            int byte4 = code_array[*index];
+            ++(*index); 
+            
+
+            int32_t bytes =  byte1 << 24 | byte2 << 16 | byte3 << 8 | byte4;
+            
+            int32_t jump_bytes = start_position + bytes;
+            
+            printf("\t\t%d: %d (+%d)\n", i + 1, jump_bytes, bytes);
+        };
+
+
+        // default:
+        printf("\t\tdefault: %d (+%d)\n", start_position + default_bytes, default_bytes);
+
+
+        --(*index);
+
         };
         break;
 
 
+        // lookupswitch
+        // case(101):{
 
-        case(101):{
+        // ++(*index);
+        // int padding = *(index) % 4;
+        // for(int i=0; i< padding;i++){
+        //     ++(*index);
+        // }
 
-        //opp
-        // indice %4   ++
-        ++(*index);
-        int padding = *(index) % 4;
-        for(int i=0; i< padding;i++){
-            ++(*index);
-        }
-        // byte byte byte byte default
-        // byte byte byte byte 
-        ++(*index);
-        ++(*index);
-        ++(*index);
-        ++(*index);
-        ++(*index);
-        int byte1 = code_array[*index];
-        ++(*index);
-        int byte2 = code_array[*index];
-        ++(*index);
-        int byte3 = code_array[*index];
-        ++(*index);
-        int byte4 = code_array[*index];
 
-        int32_t byten = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+        // // byte byte byte byte default
+        // // byte byte byte byte 
+        // ++(*index);
+        // ++(*index);
+        // ++(*index);
+        // ++(*index);
+        // ++(*index);
+        // int byte1 = code_array[*index];
+        // ++(*index);
+        // int byte2 = code_array[*index];
+        // ++(*index);
+        // int byte3 = code_array[*index];
+        // ++(*index);
+        // int byte4 = code_array[*index];
+
+        // int32_t byten = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
         
-        for(int i=0; i< byten;i++){
+        // for(int i=0; i< byten;i++){
+        //     ++(*index);
+        //     ++(*index);
+        //     ++(*index);
+        //     ++(*index);
+        //     ++(*index);
+        //     ++(*index);
+        //     ++(*index);
+        //     ++(*index);
+        //     }
+        // };
+        // break;
+
+
+        case(102):{
+            int bytecode = code_array[*index];
+
+            printf("%s ", bytecode_to_opcode_string(bytecode));
+
             ++(*index);
-            ++(*index);
-            ++(*index);
-            ++(*index);
-            ++(*index);
-            ++(*index);
-            ++(*index);
-            ++(*index);
+            if(code_array[*index] == iinc){
+                ++(*index);
+                ++(*index);
+                ++(*index);
+                ++(*index);
+                
             }
-        };
+            else{
+                //opcode index1 index2
+                ++(*index); 
+                ++(*index);
+            }
+
+        }
         break;
-        
 
         // noarguments group 
         case(0):
