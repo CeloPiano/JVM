@@ -115,10 +115,10 @@ void code_exibitor(attribute_info *attribute, ClassFile *cf){
         
 
     //     //bytecode em questão 
-    //     u1 bytecode = attribute->attribute_info_union.code_attribute.code[i];
+        u1 bytecode = attribute->attribute_info_union.code_attribute.code[i];
         
     //     // pegar o grupo
-    //     int group = bytecode_group(bytecode);
+        int group = bytecode_group(bytecode);
 
         printf("- grupo %d - ", group);
         
@@ -913,6 +913,10 @@ int bytecode_group(u1 bytecode){
             return 23;
 
 
+        // ------------- 3 bytes-------------
+
+        case multianewarray:
+        return 3;
 
 
         // ------------ 4 bytes ------------------
@@ -924,6 +928,17 @@ int bytecode_group(u1 bytecode){
 
         case invokedynamic:
         return 42;
+
+        case goto_w:
+        return 43;
+
+
+        // ----------- 16+ bytes ----------------
+        case tableswitch:
+        return 100;
+
+        case lookupswitch:
+        return 101;
 
         default:
             return 0;
@@ -1155,7 +1170,7 @@ void bytecode_print( u1* code_array, int *index, int bytecode_group, cp_info *co
         }
         break;
 
-        case(42){
+        case(42):{
             int bytecode = code_array[*index];
             
             ++(*index);
@@ -1174,11 +1189,130 @@ void bytecode_print( u1* code_array, int *index, int bytecode_group, cp_info *co
             // %s é feito de forma diferente, iterar até o : no primeiro e pegar o que tiver
             // char * name_and_type_start = ;
 
-            printf("#%d <%s>\n")
+
+            // identified by method reference index in constant pool
+            printf("#%d\n", cp_index);
+            
+        }
+        break;
+
+        case(43):{
+            // goto_w
+            // goto_w 14 (+4)
+
+            int bytecode = code_array[*index];
+            
+            int start = *index;
+
+            ++(*index);
+            int branch_byte1 = code_array[*index];
+            ++(*index);
+            int branch_byte2 = code_array[*index];
+            ++(*index);
+            int branch_byte3 = code_array[*index];
+            ++(*index);
+            int branch_byte4 = code_array[*index];
+
+            int32_t branch_byte = (branch_byte1 << 24 | branch_byte2 << 16 | branch_byte3 << 8 | branch_byte4);
+
+            int32_t final = start + branch_byte;
+
+            printf("%s ", bytecode_to_opcode_string(bytecode));
+
+            printf("%d (+%d)\n",final, branch_byte);
+        }
+        break;
+
+
+        case(3):{
+            int bytecode = code_array[*index];
+
+            ++(*index);
+            int first_bytes = code_array[*index];
+            ++(*index);
+            int second_bytes = code_array[*index];
+            ++(*index);
+            int dimensions = code_array[*index];
+
+            uint16_t cp_index = (first_bytes << 8) | second_bytes; 
+
+            printf("%s ", bytecode_to_opcode_string(bytecode));
+
+            printf("#%d <%s> dim %d\n",cp_index, Utf8_decoder(&constant_pool[constant_pool[cp_index].constant_type_union.Class_info.name_index]), dimensions);
             
 
         }
         break;
+
+        // tableswitch 
+        case(100):{
+            
+        int bytecode = code_array[*index];
+        printf("%s \n", bytecode_to_opcode_string(bytecode));
+        
+        ++(*index);
+        int padding = *(index) % 4;
+        for(int i=0; i< padding;i++){
+            ++(*index);
+        }
+
+        ++(*index);
+        ++(*index);
+        ++(*index);
+        ++(*index);
+        ++(*index);
+        ++(*index);
+        ++(*index);
+        ++(*index);
+        ++(*index);
+        ++(*index);
+        ++(*index);
+        ++(*index);
+        
+        };
+        break;
+
+
+
+        case(101):{
+
+        //opp
+        // indice %4   ++
+        ++(*index);
+        int padding = *(index) % 4;
+        for(int i=0; i< padding;i++){
+            ++(*index);
+        }
+        // byte byte byte byte default
+        // byte byte byte byte 
+        ++(*index);
+        ++(*index);
+        ++(*index);
+        ++(*index);
+        ++(*index);
+        int byte1 = code_array[*index];
+        ++(*index);
+        int byte2 = code_array[*index];
+        ++(*index);
+        int byte3 = code_array[*index];
+        ++(*index);
+        int byte4 = code_array[*index];
+
+        int32_t byten = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+        
+        for(int i=0; i< byten;i++){
+            ++(*index);
+            ++(*index);
+            ++(*index);
+            ++(*index);
+            ++(*index);
+            ++(*index);
+            ++(*index);
+            ++(*index);
+            }
+        };
+        break;
+        
 
         // noarguments group 
         case(0):
