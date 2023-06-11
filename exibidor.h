@@ -1,10 +1,10 @@
 /**
  * @file leitor_exibidor.h
  * @author Marcelo Piano
- * @author Aluno 2
- * @author Aluno 3
- * @author Aluno 4
- * @author Aluno 5
+ * @author Gabriel Borges
+ * @author Gabriel Amaro
+ * @author Pedro Venzi
+ * @author Kayran Vieira
  * @brief Arquivo com as funções utilizadas no exibidor.
  * @details Declaração das funções de exibição.
  */
@@ -16,15 +16,114 @@
 
 /// @brief Função que exibe os bytes em ascii que estão alocados no espaço de memória Bytes 
 /// @param cp_info_pointer Ponteiro que aponta para o cp_info que representa um Utf8
-char* Utf8_decoder(cp_info * cp_info_pointer);
+char* Utf8_decoder(cp_info *);
 
 /// @brief Função que exibe o cp info com base no ponteiro que aponta para os cp_infos alocados 
 /// @param classFile Ponteiro que aponta para o classfile em questão
-void cp_info_exibitor(ClassFile *classFile);
+void cp_info_exibitor(ClassFile *);
 
-void attributes_exibitor(attribute_info *attributes, u2 attributes_count, ClassFile * cf, int tabs_count);
+/// @brief Função que exibe os bytes em ascii que estão alocados no espaço de memória Bytes 
+/// @param attributes Attribute info
+/// @param attributes_count Número de atributos na tabela de atributos
+/// @param cf Ponteiro que aponta para o classfile em questão
+/// @param tabs_count Variável para organização na hora dos prints
+void attributes_exibitor(attribute_info *, u2, ClassFile *, int);
+
+/// @brief Função que
+/// @param cp Ponteiro para o Constant Pool
+/// @param classIndex Índice da classe
+char *class_decoder(cp_info *, u2);
+
+/// @brief Função que recebe bytes e retorna um float
+/// @param bytes Bytes
+float float_decoder (u4);
+
+/// @brief Função que recebe 2 bytes e retorna um long
+/// @param highBytes Maiores bytes
+/// @param lowBytes Menores bytes
+long long int long_decoder (u8, u8);
+
+/// @brief Função que recebe 2 bytes e retorna um double
+/// @param high_bytes Maiores bytes
+/// @param low_bytes Menores bytes
+double double_decoder (u8, u8);
+
+/// @brief Função que mostra o constant value type
+/// @param cp Ponteiro para o Constant Pool
+/// @param cf Ponteiro para o Class File
+void constantValue_type_exibitor(cp_info *, ClassFile *);
+
+/// @brief Função que mostra o constant value
+/// @param attribute Attribute info
+/// @param cf Ponteiro para o Class File
+void constantValue_exibitor(attribute_info *, ClassFile *);
+
+/// @brief Função que mostra o code
+/// @param attribute Attribute info
+/// @param cf Ponteiro para o Class File
+void code_exibitor(attribute_info *, ClassFile *);
+
+/// @brief Função que mostra as exceptions
+/// @param attribute Attribute info
+/// @param cf Ponteiro para o Class File
+void exceptions_exibitor(attribute_info *, ClassFile *);
+
+/// @brief Função que mostra as inner classes
+/// @param attribute Attribute info
+/// @param cf Ponteiro para o Class File
+void innerClasses_exibitor(attribute_info *, ClassFile *);
+
+/// @brief Função que mostra a line number table
+/// @param attribute Attribute info
+/// @param cf Ponteiro para o Class File
+void lineNumberTable_exibitor(attribute_info *, ClassFile *);
+
+/// @brief Função que mostra a local variable table
+/// @param attribute Attribute info
+/// @param cf Ponteiro para o Class File
+void localVariableTable_exibitor(attribute_info *, ClassFile *);
+
+/// @brief Função que mostra os fields
+/// @param cf Ponteiro para o Class File
+void fields_exibitor(ClassFile *);
+
+/// @brief Função que mostra os métodos
+/// @param cf Ponteiro para o Class File
+void methods_exibitor(ClassFile *);
+
+/// @brief Função que recebe a acc flag e retorna uma string concatenada com o seu respectivo valor
+/// @param accFlag Access Flag
+char * accFlag_decoder(u2);
+
+/// @brief Função que mostra as interfaces
+/// @param cf Ponteiro para o Class File
+void interfaces_exibitor (ClassFile *);
+
+/// @brief Função que mostra as classes
+/// @param cf Ponteiro para o Class File
+void class_exibitor(ClassFile *);
+
+/// @brief Função que pega o nome baseado no opcode
+/// @param op Opcode
+const char* bytecode_to_opcode_string(value_to_opcode);
+
+/// @brief Função que retorna os bytes de acordo com o agrupamento do bytecode
+/// @param bytecode Bytecode
+int bytecode_group(u1);
+
+/// @brief Função que converte o tipo dado no array para string
+/// @param atype tipos contidos no array
+char * code_arr_to_string(int);
+
+/// @brief Função que printa os codes baseados nos agrupamentos
+/// @param code_array Vetor dos codes
+/// @param index Índice
+/// @param bytecode_group Grupo do bytecode
+/// @param constant_pool Constant pool
+void bytecode_print( u1*, int *, int, cp_info *);
 
 
+/// @brief  Enum com possíveis valores para o atype
 typedef enum array_code_attr_to_type{
     T_BOOLEAN = 4,
     T_CHAR = 5,

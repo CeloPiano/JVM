@@ -1,10 +1,10 @@
 /**
  * @file leitor_exibidor.h
  * @author Marcelo Piano
- * @author Aluno 2
- * @author Aluno 3
- * @author Aluno 4
- * @author Aluno 5
+ * @author Gabriel Borges
+ * @author Gabriel Amaro
+ * @author Pedro Venzi
+ * @author Kayran Vieira
  * @brief Declaração das estruturas que iremos utilizar
  */
 
@@ -33,6 +33,7 @@ struct attribute_info;
 
 // ---------------------------- LOCAL VARIABLE TABLE STRUCTURE ----------------------------- //
 
+/// @brief Struct para a definição da local variable table
 typedef struct local_variable_table{   
     u2 start_pc;
     u2 length;
@@ -43,6 +44,7 @@ typedef struct local_variable_table{
 
 // ---------------------------- LOCAL VARIABLE TABLE ATTRIBUTE ----------------------------- //
 
+/// @brief Struct para a definição da local variable table attribute
 typedef struct localVariableTable_attribute {
     u2 local_variable_table_length;
     local_variable_table *local_variable_table;
@@ -51,6 +53,7 @@ typedef struct localVariableTable_attribute {
 
 // ---------------------------- LINE NUMBER TABLE STRUCTURE ----------------------------- //
 
+/// @brief Struct para a definição da line number table
 typedef struct line_number_table{
     u2 start_pc;
     u2 line_number;
@@ -58,6 +61,7 @@ typedef struct line_number_table{
 
 // ---------------------------- LINE NUMBER TABLE ATTRIBUTE ----------------------------- //
 
+/// @brief Struct para a definição da line number table attribute
 typedef struct lineNumberTable_attribute{
     u2 line_number_table_length;
     line_number_table *line_number_table;
@@ -66,6 +70,7 @@ typedef struct lineNumberTable_attribute{
 
 // ---------------------------- INNER CLASS STRUCTURE ----------------------------- //
 
+/// @brief Struct para a definição das inner classes
 typedef struct inner_classes{
     u2 inner_class_info_index;
     u2 outer_class_info_index;
@@ -75,6 +80,7 @@ typedef struct inner_classes{
 
 // ---------------------------- INNER CLASS ATTRIBUTE ----------------------------- //
 
+/// @brief Struct para a definição das inner classes attribute
 typedef struct innerClasses_attribute {
     u2 number_of_classes;
     inner_classes *inner_classes;
@@ -82,7 +88,7 @@ typedef struct innerClasses_attribute {
 
 // ---------------------------- EXCEPTION TABLE STRUCTURE ----------------------------- //
 
-/// @brief Exception Table Info
+/// @brief Struct para a definição da exception table
 typedef struct exception_table{
     u2 start_pc;
     u2 end_pc;
@@ -92,6 +98,7 @@ typedef struct exception_table{
 
 // ---------------------------- EXCEPTION ATTRIBUTE ----------------------------- //
 
+/// @brief Struct para a definição dos exceptions attribute
 typedef struct exceptions_attribute {
     u2 number_of_exceptions;
     // cada valor é um constant pool index -> constant class info
@@ -102,7 +109,7 @@ typedef struct exceptions_attribute {
 // ---------------------------- CODE ATTRIBUTE ----------------------------- //
 
 // se for abstract ou native nao tem codigo... se não, temos que ter apenas um atributo de código
-/// @brief Struct Code Attribute info
+/// @brief Struct para a definição do code attribute
 typedef struct code_attribute{
     u2 max_stack;
     u2 max_locals;
@@ -116,7 +123,7 @@ typedef struct code_attribute{
 
 // ---------------------------- ATTRIBUTE ----------------------------- //
 
-/// @brief Struct que define o Attribute info
+/// @brief Struct para a definição do attribute info
 typedef struct attribute_info{
     u2 attribute_name_index; //nome em utf8
     u4 attribute_lenght; //
@@ -137,7 +144,7 @@ typedef struct attribute_info{
 
 // ---------------------------- METHODS ----------------------------- //
 
-/// @brief Struct que define o Method Info
+/// @brief Struct para a definição do Method Info
 typedef struct method_info{
     u2 acess_flags; 
     u2 name_index;          //aqui nesse caso pode ser <init>, <clinit> ou um nome valido para o metodo
@@ -149,7 +156,7 @@ typedef struct method_info{
 
 // ---------------------------- FIELDS ----------------------------- //
 
-/// @brief Struct que define o Field Info
+/// @brief Struct para a definição do Field Info
 typedef struct field_info{
     u2 acess_flags; 
     u2 name_index;
@@ -158,7 +165,7 @@ typedef struct field_info{
     attribute_info *attributes;  //aqui acessamos o atribute info utilizando o count
 }field_info;
 
-/// @brief Struct que define o cp_info
+/// @brief Struct para a definição do cp_info
 typedef struct cp_info{
     u1 tag;
 
@@ -224,7 +231,7 @@ typedef struct cp_info{
 
 
 
-/// @brief Struct que define o ClassFile
+/// @brief Struct para a definição da ClassFile
 typedef struct ClassFile
 {
     u4 magic;
