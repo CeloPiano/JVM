@@ -103,9 +103,7 @@ void interfaces_exibitor (ClassFile *);
 /// @param cf Ponteiro para o Class File
 void class_exibitor(ClassFile *);
 
-/// @brief Função que pega o nome baseado no opcode
-/// @param op Opcode
-const char* bytecode_to_opcode_string(value_to_opcode);
+
 
 /// @brief Função que retorna os bytes de acordo com o agrupamento do bytecode
 /// @param bytecode Bytecode
@@ -377,5 +375,11 @@ typedef enum value_to_opcode
     goto_w = 0xc8,
     jsr_w = 0xc9,
 }value_to_opcode;
+
+
+/// @brief Função que pega o nome baseado no opcode
+/// @param op Opcode
+const char* bytecode_to_opcode_string(value_to_opcode op);
+
 
 #endif
