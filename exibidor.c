@@ -114,11 +114,11 @@ void code_exibitor(attribute_info *attribute, ClassFile *cf){
         // printf("HEXA %x \n", bytecode);
         
 
-        //bytecode em questão 
-        u1 bytecode = attribute->attribute_info_union.code_attribute.code[i];
+    //     //bytecode em questão 
+    //     u1 bytecode = attribute->attribute_info_union.code_attribute.code[i];
         
-        // pegar o grupo
-        int group = bytecode_group(bytecode);
+    //     // pegar o grupo
+    //     int group = bytecode_group(bytecode);
 
         printf("- grupo %d - ", group);
         
@@ -128,9 +128,9 @@ void code_exibitor(attribute_info *attribute, ClassFile *cf){
         line++;
     };
     
-    printf("\n");
+    // printf("\n");
 
-    attributes_exibitor(attribute->attribute_info_union.code_attribute.attributes, attribute->attribute_info_union.code_attribute.attribute_count, cf);
+    attributes_exibitor(attribute->attribute_info_union.code_attribute.attributes, attribute->attribute_info_union.code_attribute.attribute_count, cf, 2);
 
 };
 
@@ -156,11 +156,11 @@ void exceptions_exibitor(attribute_info *attribute, ClassFile *cf) {
 void innerClasses_exibitor(attribute_info *attribute, ClassFile *cf) {
     u2 length = attribute->attribute_info_union.innerClasses_attribute.number_of_classes;
     cp_info *cp = cf->constant_pool;
-    printf("\tSpecific info:\n");
+    printf("Specific info:\n");
     
     for (int i = 0; i < length; i++) {
         inner_classes *inner_class = &attribute->attribute_info_union.innerClasses_attribute.inner_classes[i];
-        printf("\tNúmero: %d - Inner Class: cp_info #%d <%s> - Outer Class: cp_info #%d <%s> - Inner Name: cp_info #%d <%s> - Access Flags: 0x%x [%s]\n", i, inner_class->inner_class_info_index, class_decoder(cp, inner_class->inner_class_info_index), inner_class->outer_class_info_index, class_decoder(cp, inner_class->outer_class_info_index), inner_class->inner_name_index, Utf8_decoder(&cp[inner_class->inner_name_index]), inner_class->inner_class_access_flags, accFlag_decoder(inner_class->inner_class_access_flags));
+        printf("Número: %d - Inner Class: cp_info #%d <%s> - Outer Class: cp_info #%d <%s> - Inner Name: cp_info #%d <%s> - Access Flags: 0x%x [%s]\n", i, inner_class->inner_class_info_index, class_decoder(cp, inner_class->inner_class_info_index), inner_class->outer_class_info_index, class_decoder(cp, inner_class->outer_class_info_index), inner_class->inner_name_index, Utf8_decoder(&cp[inner_class->inner_name_index]), inner_class->inner_class_access_flags, accFlag_decoder(inner_class->inner_class_access_flags));
     }
 
     printf("\n");
@@ -170,11 +170,11 @@ void innerClasses_exibitor(attribute_info *attribute, ClassFile *cf) {
 
 void lineNumberTable_exibitor(attribute_info *attribute, ClassFile *cf) {
     u2 length = attribute->attribute_info_union.lineNumberTable_attribute.line_number_table_length;
-    printf("\tSpecific info:\n");
+    printf("\t\tSpecific info:\n");
 
     for (int i = 0; i < length; i++) {
         line_number_table *line_number_table = &attribute->attribute_info_union.lineNumberTable_attribute.line_number_table[i];
-        printf("\tNúmero: %d - Start PC: %d - Line Number: %d\n", i, line_number_table->start_pc, line_number_table->line_number);
+        printf("\t\tNúmero: %d - Start PC: %d - Line Number: %d\n", i, line_number_table->start_pc, line_number_table->line_number);
     }
 
     printf("\n");
@@ -200,14 +200,26 @@ void localVariableTable_exibitor(attribute_info *attribute, ClassFile *cf) {
 
 // ----------------------------- ATTRIBUTES -------------------------------------
 
-void attributes_exibitor(attribute_info *attributes, u2 attributes_count, ClassFile * cf){
+void attributes_exibitor(attribute_info *attributes, u2 attributes_count, ClassFile * cf, int tabs_count){
+    char *tabs = (char*) malloc(tabs_count * 2 * sizeof(char));
+    if (tabs_count == 0) {
+        printf("Início attributes: \n\n");
+    }
+    if (tabs_count == 1) {
+        tabs = "\t";
+    } else if (tabs_count == 2) {
+        tabs = "\t\t";
+    } else if (tabs_count == 3) {
+        tabs = "\t\t\t";
+    }
+
     for (int i = 0; i < attributes_count; i++) {
         attribute_info *attr = &attributes[i];
         u2 length = attr->attribute_lenght;
         u2 name_index = attr->attribute_name_index;
-        printf("\tAttribute[%d]\n", i);
-        printf("\tAttribute name index: cp_info #%d <%s> \n", name_index, Utf8_decoder(&cf->constant_pool[name_index]));
-        printf("\tAttribute length: %d\n", length);
+        printf("%sAttribute[%d]\n", tabs, i);
+        printf("%sAttribute name index: cp_info #%d <%s> \n", tabs, name_index, Utf8_decoder(&cf->constant_pool[name_index]));
+        printf("%sAttribute length: %d\n", tabs, length);
 
         char * name = Utf8_decoder(&cf->constant_pool[name_index]);
         // usar o code length aqui não faz sentido porque não é pra printar um code para cada length.
@@ -239,6 +251,11 @@ void attributes_exibitor(attribute_info *attributes, u2 attributes_count, ClassF
             printf("\n");
         }
     }
+
+    if (tabs_count == 0) {
+        printf("Fim attributes\n\n");
+    }   
+    
 };
 
 // ----------------------------- FIELDS -------------------------------------
@@ -253,7 +270,7 @@ void fields_exibitor(ClassFile *cf) {
         printf("Name: cp_info #%d %s\n", field->name_index, Utf8_decoder(&cp[field->name_index]));
         printf("Descriptor: cp_info #%d <%s>\n", field->descriptor_index, Utf8_decoder(&cp[field->descriptor_index]));
         printf("Access flags: 0x%x [%s]\n\n", field->acess_flags, accFlag_decoder(field->acess_flags));
-        attributes_exibitor(field->attributes, field->attributes_count, cf);
+        attributes_exibitor(field->attributes, field->attributes_count, cf, 1);
     }
     printf("Fim Fields\n\n");
 }
@@ -284,7 +301,7 @@ void methods_exibitor(ClassFile *cf){
         printf("Acess Flags: 0x%x [%s] \n\n", method->acess_flags, accFlag_decoder(method->acess_flags));
 
         // attributes
-        attributes_exibitor(method->attributes, method->attributes_count, cf);
+        attributes_exibitor(method->attributes, method->attributes_count, cf, 1);
     };
 
     printf("Fim Methods\n\n");
@@ -554,9 +571,7 @@ void class_exibitor(ClassFile *cf) {
     methods_exibitor(cf);
     
     // Exibição attributes
-    printf("Início attributes\n\n");
-    attributes_exibitor(cf->attributes, cf->attributes_count, cf);
-    printf("\nFim attributes\n\n");
+    attributes_exibitor(cf->attributes, cf->attributes_count, cf, 0);
 
 }
 

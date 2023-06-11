@@ -22,7 +22,7 @@ char* Utf8_decoder(cp_info * cp_info_pointer);
 /// @param classFile Ponteiro que aponta para o classfile em questão
 void cp_info_exibitor(ClassFile *classFile);
 
-void attributes_exibitor(attribute_info *attributes, u2 attributes_count, ClassFile * cf);
+void attributes_exibitor(attribute_info *attributes, u2 attributes_count, ClassFile * cf, int tabs_count);
 
 
 typedef enum array_code_attr_to_type{
