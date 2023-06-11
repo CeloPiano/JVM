@@ -35,9 +35,10 @@ static u8 u8Read(FILE *);
 
 /// @brief lê do arquivo .class e preenche a tabela de excessoes do attributo code em questão.
 /// @param fd Ponteiro para Byte do arquivo .Class lido
-/// @param exception_table Ponteiro par a tabela de exceções
-/// @param exception_table_lenght Tamanho da tabela
-void read_attribute_code_exception_table(FILE *, exception_table *, u2);
+/// @param exception_table ponteiro para tabela de excessoes
+/// @param exception_table_lenght tamanho da tabela
+void read_attribute_code_exception_table(FILE *fd, exception_table * exception_table, u2 exception_table_lenght);
+
 
 /// @brief Funçao que le a exception table 
 /// @param fd Ponteiro para Byte do arquivo .Class lido
