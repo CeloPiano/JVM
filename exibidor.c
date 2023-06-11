@@ -105,10 +105,11 @@ void code_exibitor(attribute_info *attribute, ClassFile *cf){
     printf("\tMaximum code length: %d \n\n",attribute->attribute_info_union.code_attribute.code_lenght);
 
     // code mnermonicos!
-    
+    int line = 1;
     // iterar para cada byte
     for(int i = 0; i < attribute->attribute_info_union.code_attribute.code_lenght; i++){
-        
+        printf("%d | %d ", line, i);
+
         // printf("\t%d %s   ",i , bytecode_to_opcode_string(bytecode));
         // printf("HEXA %x \n", bytecode);
         
@@ -119,11 +120,12 @@ void code_exibitor(attribute_info *attribute, ClassFile *cf){
         // pegar o grupo
         int group = bytecode_group(bytecode);
 
-        printf("esse é o grupo %d \n", group);
+        printf("- grupo %d - ", group);
         
         // printar com base no grupo
         bytecode_print(attribute->attribute_info_union.code_attribute.code, &i, group, cf->constant_pool);
-
+        
+        line++;
     };
     
     printf("\n");
@@ -772,7 +774,7 @@ const char* bytecode_to_opcode_string(value_to_opcode op)
     case    dreturn:                  return "dreturn";           
 
     case    areturn:                  return "areturn";           
-    case    inst_return:              return "inst_return";               
+    case    inst_return:              return "return";               
     case    getstatic:                return "getstatic";             
     case    putstatic:                return "putstatic";             
     case    getfield:                 return "getfield";            
@@ -814,20 +816,99 @@ int bytecode_group(u1 bytecode){
     switch(bytecode){
 
         // começando pelas de index number - 1 byte
-        case aload:
-        case astore:
-        case dload:
-        case dstore:
-        case fload:
-        case fstore:
-        case iload:
-        case istore:
-        case lload:
-        case lstore:
-        case ret: return 1;
+            case aload:
+            case astore:
+            case dload:
+            case dstore:
+            case fload:
+            case fstore:
+            case iload:
+            case istore:
+            case lload:
+            case lstore:
+            case ret: return 1;
 
-        // index pool - 1 byte
-        case ldc: return 11;
+        // index pool - 1 byte ---> String, int, float, Class
+            case ldc: return 11;
+
+        // newarray - 1 byte:
+            case newarray: return 12;
+
+        // bipush
+            case bipush: return 13;
+
+
+        // ------------------- 2 bytes -------------
+
+        // index pool - 2 bytes
+
+            // class 
+            case anewarray:
+            case checkcast:
+            case instanceof:
+            case new:
+
+            // field
+            case getfield:
+            case getstatic:
+            case putfield:
+            case putstatic: 
+
+            // method
+            case invokespecial:
+            case invokestatic:
+            case invokevirtual:
+
+            // String, int, float, Class
+            case ldc_w:
+            // double, long
+            case ldc2_w:
+
+            return 2;  
+
+
+        // branch Type 2.1 - 2 bytes
+            case inst_goto:
+            case if_acmpeq:
+            case if_acmpne:
+            case if_icmpeq:
+            case if_icmpge:
+            case if_icmpgt:
+            case if_icmple:
+            case if_icmplt:
+            case if_icmpne:
+            case ifge:
+            case ifgt:
+            case ifeq:
+            case ifle:
+            case iflt:
+            case ifne:
+            case ifnonnull:
+            case ifnull:
+            case jsr: 
+            return 21;
+
+
+        // iinc increment local variable #index by signed byte const
+            case iinc: 
+            return 22;
+
+        // index number 2.2 - 2 bytes
+            case sipush:
+            return 23;
+
+
+
+
+        // ------------ 4 bytes ------------------
+        case jsr_w: 
+        return 4;
+
+        case invokeinterface: 
+        return 41;
+
+        case invokedynamic:
+        return 42;
 
         default:
             return 0;
@@ -836,6 +917,35 @@ int bytecode_group(u1 bytecode){
 
 };
 
+
+// array code attr comp
+
+char * code_arr_to_string(int atype){
+    if(atype == T_BOOLEAN){
+        return "boolean";
+    }
+    else if (atype == T_CHAR){
+        return "char";
+    }
+    else if (atype == T_FLOAT){
+        return "float";
+    }
+    else if (atype == T_DOUBLE){
+        return "double";
+    }
+    else if (atype == T_BYTE){
+        return "byte";
+    }
+    else if (atype == T_SHORT){
+        return "short";
+    }
+    else if (atype == T_INT){
+        return "int";
+    }
+    else if (atype == T_LONG){
+        return "long";
+    };
+};
 
 // -------------------------- GROUP PRINT ---------------------- 
 // baseado nos grupos iremos printar os codes
@@ -846,7 +956,8 @@ void bytecode_print( u1* code_array, int *index, int bytecode_group, cp_info *co
         // 1 byte:
         
         // index number group (1):
-        case(1):
+        case(1):{
+
             // printando bytecode
             printf("%s ", bytecode_to_opcode_string(code_array[*index]));
             
@@ -854,28 +965,210 @@ void bytecode_print( u1* code_array, int *index, int bytecode_group, cp_info *co
             
             // printando o número
             printf("%d \n", *index);
-
-
-
+        }
+        break;
 
 
 
         // index cp_info group (1.1):
-        case(11):
+        case(11):{
+
             // printando
-            printf("%s ", bytecode_to_opcode_string(code_array[*index]));
+            printf("%s \n", bytecode_to_opcode_string(code_array[*index]));
 
             ++(*index);
 
             int pool_index = *index;
             // printando o cp_info
             // aqui o pool_index aponta -> CONSTANT_String_info
-            printf("#%d %s\n", pool_index, Utf8_decoder(&constant_pool[constant_pool[pool_index].constant_type_union.String.string_index]));
+            // printf("#%d %s\n", pool_index, Utf8_decoder(&constant_pool[constant_pool[pool_index].constant_type_union.String.string_index]));
+        }
+        break;
 
+        case(12):{
+
+            printf("%s ", bytecode_to_opcode_string(code_array[*index]));
+            
+            ++(*index);
+            int atype = code_array[*index];
+
+
+            // ver qual o tipo do array
+            char* atype_string = code_arr_to_string(atype);
+
+            printf("%d (%s)\n",atype, atype_string);
+
+        };
+        break;
+
+
+        case(13):{
+            printf("%s ", bytecode_to_opcode_string(code_array[*index]));
+
+            ++(*index);
+            int byte_to_push = code_array[*index];
+
+            printf("%d \n", byte_to_push);
+
+        }
+        break;
+
+        // index _info group - 2bytes;
+        case(2):{
+
+            int bytecode = code_array[*index];
+
+            // printando
+            
+            ++(*index);
+            int first_bytes = code_array[*index];
+            
+            ++(*index);
+            int second_bytes = code_array[*index];
+
+            uint16_t cp_index = (first_bytes << 8) | second_bytes; 
+            // ver qual é o tipo e ir 
+
+            // printf("cp index: %d \n", cp_index);
+            
+            printf("%s ", bytecode_to_opcode_string(bytecode));
+
+            // class
+            if (!strcmp(bytecode_to_opcode_string(bytecode), "anewarray") | !strcmp(bytecode_to_opcode_string(bytecode), "checkcast") | !strcmp(bytecode_to_opcode_string(bytecode), "instanceof") | !strcmp(bytecode_to_opcode_string(bytecode), "new")){
+                printf("#%d <%s>\n", cp_index, Utf8_decoder(&constant_pool[constant_pool[cp_index].constant_type_union.Class_info.name_index]));
+            }
+            // field
+            else if(!strcmp(bytecode_to_opcode_string(bytecode), "getfield") | !strcmp(bytecode_to_opcode_string(bytecode), "getstatic") | !strcmp(bytecode_to_opcode_string(bytecode), "putfield") | !strcmp(bytecode_to_opcode_string(bytecode), "putstatic")){
+                printf("#%d <%s : %s>\n", cp_index, Utf8_decoder(&constant_pool[constant_pool[constant_pool[cp_index].constant_type_union.Fieldref_info.class_index].constant_type_union.Class_info.name_index]), Utf8_decoder(&constant_pool[constant_pool[constant_pool[cp_index].constant_type_union.Fieldref_info.name_and_type_index].constant_type_union.NameAndType.descriptor_index]));
+            }
+            // method
+            else if(!strcmp(bytecode_to_opcode_string(bytecode), "invokespecial") | !strcmp(bytecode_to_opcode_string(bytecode), "invokestatic") | !strcmp(bytecode_to_opcode_string(bytecode), "invokevirtual")){
+                 printf("#%d <%s : %s>\n", cp_index, Utf8_decoder(&constant_pool[constant_pool[constant_pool[cp_index].constant_type_union.Methodref_info.class_index].constant_type_union.Class_info.name_index]),Utf8_decoder(&constant_pool[constant_pool[constant_pool[cp_index].constant_type_union.Methodref_info.name_and_type_index].constant_type_union.NameAndType.descriptor_index]));
+                // printf("#%d <%s : >\n", cp_index, Utf8_decoder(&constant_pool[constant_pool[constant_pool[cp_index].constant_type_union.Methodref_info.class_index].constant_type_union.Class_info.name_index]));
+            };
+
+        } 
+        break;
+
+        case(21):{
+            
+            int bytecode = code_array[*index];
+
+            // pegando o indice do momento
+            int start_index = *index;
+
+            ++(*index);
+            int first_bytes = code_array[*index];
+            
+            ++(*index);
+            int second_bytes = code_array[*index];
+
+            uint16_t branch_jump = (first_bytes << 8) | second_bytes; 
+
+            // calculando local final
+            uint16_t final = start_index + branch_jump;
+
+            printf("%s ", bytecode_to_opcode_string(bytecode));
+            // local final  (+numero de pualos)
+            printf("%d (+%d)\n", final, branch_jump);
+        }
+        break;
+
+        case(22):{
+            // printando
+            printf("%s ", bytecode_to_opcode_string(code_array[*index]));
+
+            ++(*index);
+            int local_variable_index = code_array[*index];
+            
+            ++(*index);
+            int constant = code_array[*index];
+
+            printf("%d by %d\n",local_variable_index, constant);
+        }
+        break;
+
+        case(23):{
+            // printando
+            printf("%s ", bytecode_to_opcode_string(code_array[*index]));
+
+            ++(*index);
+            int first_bytes = code_array[*index];
+            
+            ++(*index);
+            int second_bytes = code_array[*index];
+
+            uint16_t sum = (first_bytes << 8) | second_bytes; 
+
+            printf("%d \n",sum);
+
+        }   
+        break;
+
+        case(4):{
+            
+            printf("%s \n", bytecode_to_opcode_string(code_array[*index]));
+
+            ++(*index);
+            ++(*index);        
+            ++(*index);
+            ++(*index);
+        }
+        break;
+
+        case(41):{
+
+            int bytecode = code_array[*index];
+
+            // printando
+            
+            ++(*index);
+            int first_bytes = code_array[*index];
+            
+            ++(*index);
+            int second_bytes = code_array[*index];
+
+            uint16_t cp_index = (first_bytes << 8) | second_bytes; 
+            
+            ++(*index);
+            int count = code_array[*index]; 
+            ++(*index);
+        
+            printf("%s ", bytecode_to_opcode_string(bytecode));
+            printf("#%d <%s : %s> count %d\n", cp_index, Utf8_decoder(&constant_pool[constant_pool[constant_pool[cp_index].constant_type_union.Methodref_info.class_index].constant_type_union.Class_info.name_index]),Utf8_decoder(&constant_pool[constant_pool[constant_pool[cp_index].constant_type_union.Methodref_info.name_and_type_index].constant_type_union.NameAndType.descriptor_index]), count);
+
+        }
+        break;
+
+        case(42){
+            int bytecode = code_array[*index];
+            
+            ++(*index);
+            int first_bytes = code_array[*index];
+            
+            ++(*index);
+            int second_bytes = code_array[*index];
+
+            uint16_t cp_index = (first_bytes << 8) | second_bytes; 
+            
+            ++(*index);
+            ++(*index);
+
+            printf("%s ", bytecode_to_opcode_string(bytecode));
+
+            // %s é feito de forma diferente, iterar até o : no primeiro e pegar o que tiver
+            // char * name_and_type_start = ;
+
+            printf("#%d <%s>\n")
+            
+
+        }
+        break;
 
         // noarguments group 
         case(0):
             printf("%s \n", bytecode_to_opcode_string(code_array[*index]));
+        break;
 
     };
 
