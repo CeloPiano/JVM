@@ -11,7 +11,7 @@
 
 int main(void){
     // Lendo o arquivo .CLASS
-    char path[] = "maluco.class";
+    char path[] = "zoo.class";
     FILE *fd = fopen(path, "rb");
     // Declarando o ponteiro do tipo ClassFile (struct) - Aqui temos que alocar um espaço na memoria do tamanho de classfile e fazer um casting
     ClassFile *cf = (ClassFile *) malloc(sizeof(ClassFile));

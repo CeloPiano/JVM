@@ -122,7 +122,7 @@ void code_exibitor(attribute_info *attribute, ClassFile *cf){
         // pegar o grupo
         int group = bytecode_group(bytecode);
 
-        printf("- grupo %d - ", group);
+        // printf("- grupo %d - ", group);
         
         // se for lookupswitch break e print instrução não implementada
         if(bytecode == lookupswitch){
@@ -390,9 +390,9 @@ void cp_info_exibitor(ClassFile *classFile){
         switch(constantPool[i].tag){
 
             case(0) :
-                // {
-                // printf("(large numeric continued)\n\n");
-                // }
+                {
+                printf("(large numeric continued)\n\n");
+                }
                 break;
             case(CONSTANT_Class_info):
                 { 
