@@ -11,12 +11,10 @@
 
 
 #include "types.h"
+#include "utf8.h"
 #ifndef EXIBIDORH
 #define EXIBIDORH
 
-/// @brief Função que exibe os bytes em ascii que estão alocados no espaço de memória Bytes 
-/// @param cp_info_pointer Ponteiro que aponta para o cp_info que representa um Utf8
-char* Utf8_decoder(cp_info *);
 
 /// @brief Função que exibe o cp info com base no ponteiro que aponta para os cp_infos alocados 
 /// @param classFile Ponteiro que aponta para o classfile em questão

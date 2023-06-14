@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "leitor.h"
-#include "exibidor.h"
+
 
 // Funçoes que iremos utilizar para a leitura dos arquivos
 

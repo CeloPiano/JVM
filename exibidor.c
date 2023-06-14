@@ -14,26 +14,6 @@ void bytecode_print( u1*, int *, int, cp_info *);
 // }
 
 
-// essa função vai retornar um vetor de char
-// pegar o cp info em questão usar o lenght para iterar e "concatenar" a string 
-char* Utf8_decoder(cp_info *cp_info_pointer){
-    
-    // pegar o tamanho
-    u1 length = cp_info_pointer->constant_type_union.Utf8.length;
-    
-    // alocando espaço em memória para a string
-    char* string = (char *) malloc((length) * sizeof(char)); 
-
-    // alimentando a string com os caracteres?
-    for(int i = 0; i < length; i++){
-        // pegar o byte em questão e transfomar para char 
-        u1 byte = cp_info_pointer->constant_type_union.Utf8.bytes[i];
-        *(string+i) =  byte;
-    };
-
-    return string;
-}
-
 char *class_decoder(cp_info *cp, u2 classIndex) {
     u2 UTF8index = cp[classIndex].constant_type_union.Class_info.name_index;
     char *className = Utf8_decoder(&cp[UTF8index]);
@@ -122,7 +102,7 @@ void code_exibitor(attribute_info *attribute, ClassFile *cf){
         // pegar o grupo
         int group = bytecode_group(bytecode);
 
-        printf("- grupo %d - ", group);
+        // printf("- grupo %d - ", group);
         
         // se for lookupswitch break e print instrução não implementada
         if(bytecode == lookupswitch){
@@ -390,9 +370,9 @@ void cp_info_exibitor(ClassFile *classFile){
         switch(constantPool[i].tag){
 
             case(0) :
-                // {
-                // printf("(large numeric continued)\n\n");
-                // }
+                {
+                printf("(large numeric continued)\n\n");
+                }
                 break;
             case(CONSTANT_Class_info):
                 { 
@@ -534,7 +514,7 @@ void cp_info_exibitor(ClassFile *classFile){
 
 void class_exibitor(ClassFile *cf) {
     // Exibição magic number
-    printf("Magic: %d \n", cf->minor_version);
+    printf("Magic: %x \n", cf->magic);
 
     // Exibição minor version
     printf("Minor version: %d \n", cf->minor_version);
